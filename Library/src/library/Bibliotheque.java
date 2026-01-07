@@ -46,27 +46,16 @@ public class Bibliotheque{
         }
         return "Lecteur annhéanti";
     }
-
+    
     public void modificationLecteur(Lecteur lect, int nouveauMaxEmprunt, int nouvelleDuree) {
         lect.setMaxEmprunt(nouveauMaxEmprunt);
         System.out.println("Paramètres modifiés pour : " + lect.getNom());
     }
-
-
+    
+    
     /* ---------------------------*/
     /* --- Gestion des Prêts --- */
     /* ---------------------------*/
-    
-    public int getNbEmpruntsEnCours(Lecteur lecteur) {
-        int compteur = 0;
-        for (Pret p : this.Prets) {
-            // Vérification du lecteur
-            if (p.getLecteur().equals(lecteur)) {
-                compteur++;
-            }
-        }
-        return compteur;
-    }
     
     public boolean requetePret(Lecteur lecteur, Document doc) {
         //Vérification du  nombre de prêt du lecteur
@@ -109,13 +98,13 @@ public class Bibliotheque{
             if (p.getLecteur().equals(lecteur) && p.getDocument().equals(document)) {
                 // On active la prolongation
                 p.setProlongation(true);
-                System.out.println("PROLONGATION : Prêt prolongé pour " + document.getTitre() + "de : " + 7 + " jours");
+                System.out.println("PROLONGATION : Prêt prolongé pour " + document.getTitre() + " de : " + 7 + "jours");
                 return; // Permet de stopper la boucle (Pas nécessaire mais évite de potentiels problèmes de runtime ou gc) 
             }
         }
         System.out.println("Impossible de prolonger : Prêt non trouvé.");
     }
-
+    
     public void declarationPerte(Lecteur lecteur, Document document) {
         double aPayer = 0;
         if (document instanceof Livre) { // Permet de déterminer la nature du document
@@ -126,7 +115,7 @@ public class Bibliotheque{
             aPayer = document.getPrix(); // Prix d'un périodique
         }
         System.out.println("Perte d'un document : " + lecteur.getNom() + " doit payer " + aPayer + " euros.");
-
+        
         // Mets à jour le stock
         Pret pretASupprimer = null;
         for (Pret p : this.Prets) {
@@ -136,38 +125,49 @@ public class Bibliotheque{
             }
         }
         if (pretASupprimer != null) { // Pour ne pas retirer un null ça n'a pas de sens
-            this.Prets.remove(pretASupprimer);
+        this.Prets.remove(pretASupprimer);
+    }
+}
+
+public void notificationLecteur() {
+    LocalDate aujourdhui = LocalDate.now();
+    System.out.println("--- ! LISTE DES RETARDS ! ---");
+    boolean retardTrouve = false;
+    
+    for (Pret p : this.Prets) {
+        if (p.getDateRetourPrevue().isBefore(aujourdhui)) { // is Before est une méthode de java time
+            System.out.println("- ! RETARD : " + p.getLecteur().getNom() + " aurait dû rendre '" 
+            + p.getDocument().getTitre() + "' le " + p.getDateRetourPrevue());
+            retardTrouve = true;
         }
     }
+    if (!retardTrouve) {
+        System.out.println("Aucun retard à signaler.");
+    }
+}
 
-    public void notificationLecteur() {
-        LocalDate aujourdhui = LocalDate.now();
-        System.out.println("--- ! LISTE DES RETARDS ! ---");
-        boolean retardTrouve = false;
 
-        for (Pret p : this.Prets) {
-            if (p.getDateRetourPrevue().isBefore(aujourdhui)) { // is Before est une méthode de java time
-                System.out.println("- ! RETARD : " + p.getLecteur().getNom() + " aurait dû rendre '" 
-                                    + p.getDocument().getTitre() + "' le " + p.getDateRetourPrevue());
-                retardTrouve = true;
-            }
-        }
-        if (!retardTrouve) {
-            System.out.println("Aucun retard à signaler.");
+/* ---------------------------*/
+/* --- Utilitaires (debug notamment) --- */ 
+/* ---------------------------*/
+
+public List<Pret> getToutLesPrets() {return this.Prets;}
+
+public List<Document> obtenirToutLesDocuments() {return this.Documents;}
+
+public List<Lecteur> obtenirToutLesLecteurs() {return this.Lecteurs;}
+
+public int getNbEmpruntsEnCours(Lecteur lecteur) {
+    int compteur = 0;
+    for (Pret p : this.Prets) {
+        String emailPret = p.getLecteur().getEmail();
+        String emailLecteurActuel = lecteur.getEmail();
+        if (emailPret.equalsIgnoreCase(emailLecteurActuel)) {
+            compteur++;
         }
     }
-
-
-    /* ---------------------------*/
-    /* --- Utilitaires (debug notamment) --- */ 
-    /* ---------------------------*/
-
-    public List<Pret> getToutLesPrets() {return this.Prets;}
-
-    public List<Document> obtenirToutLesDocuments() {return this.Documents;}
-
-    public List<Lecteur> obtenirToutLesLecteurs() {return this.Lecteurs;}
-
+    return compteur;
+}
 
 
 

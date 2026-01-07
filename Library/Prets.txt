@@ -3,5 +3,6 @@ marie.curie@science.org;LIV_005;2023-10-01;true
 jean.valjean@histoire.fr;LIV_004;2025-12-20;true
 sherlock@detective.uk;LIV_006;2026-01-06;true
 bob.martin@etud.fr;LIV_005;2026-01-07;true
+bob.martin@etud.fr;LIV_005;2026-01-07;true
+bob.martin@etud.fr;LIV_005;2026-01-07;true
 alice.dupont@univ.fr;LIV_001;2026-01-07;false
-bob.martin@etud.fr;LIV_005;2026-01-07;false
