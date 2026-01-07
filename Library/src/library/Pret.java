@@ -1,0 +1,35 @@
+package library;
+
+import java.time.*; // Permet de pouvoir calculer les durées de prêt et les dates de retour prévu
+
+public class Pret {
+    private Document Document;
+    private Lecteur Lecteur;
+    private LocalDate DatePret;
+    private LocalDate DateRetourPrevue; 
+    private boolean Prolongation;
+
+public Pret(Document document, Lecteur lecteur) {
+        this.Document = document;
+        this.Lecteur = lecteur;
+        this.DatePret = LocalDate.now();
+        // Calcul date retour basé sur le type de lecteur
+        this.DateRetourPrevue = this.DatePret.plusDays(Lecteur.getDureePret());
+        this.Prolongation = false;
+    }
+
+    // Getteurs et Setters (TODO : toString les class)
+    public Document getDocument() { return Document; }
+    public Lecteur getLecteur() { return Lecteur; }
+    public LocalDate getDateRetourPrevue() { return DateRetourPrevue; }
+    public boolean isProlongation() { return Prolongation; }
+
+    // Méthode pour prolonger le prêt, on ne mets pas de jours maximum
+    public void setProlongation(boolean b, int duree) {
+        b = true;
+        this.Prolongation = b;
+        if(b) {
+            this.DateRetourPrevue = this.DateRetourPrevue.plusDays(duree);
+        }
+    }
+}

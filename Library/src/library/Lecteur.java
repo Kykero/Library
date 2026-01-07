@@ -1,6 +1,6 @@
 package library;
 
-public class Lecteur {
+public abstract class Lecteur {
     protected String Nom;
     protected String Email;
     protected String Institut;
@@ -18,4 +18,6 @@ public class Lecteur {
     public int getMaxEmprunt() { return MaxEmprunt; }
     public void setMaxEmprunt(int Max) { this.MaxEmprunt = Max; }
 
+    //Méthode Abstract
+    public abstract int getDureePret();
 }
