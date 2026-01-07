@@ -102,6 +102,30 @@ public class Bibliotheque{
         }
         System.out.println("Impossible de prolonger : Prêt non trouvé.");
     }
-    
+
+    public void declarationPerte(Lecteur lecteur, Document document) {
+        double aPayer = 0;
+        if (document instanceof Livre) { // Permet de déterminer la nature du document
+            Livre livrePerdu = (Livre) document; // Cast pour accéder aux méthodes de Livre
+            double majoration = livrePerdu.getPrix() * livrePerdu.getTauxRemboursement();
+            aPayer = livrePerdu.getPrix() + majoration;
+        } else {
+            aPayer = document.getPrix(); // Prix d'un périodique
+        }
+
+        System.out.println("Perte d'un document : " + lecteur.getNom() + " doit payer " + aPayer + " euros.");
+
+        // Mets à jour le stock
+        Pret pretASupprimer = null;
+        for (Pret p : this.Prets) {
+            if (p.getLecteur().equals(lecteur) && p.getDocument().equals(document)) {
+                pretASupprimer = p;
+                break;
+            }
+        }
+        if (pretASupprimer != null) { // Pour ne pas retirer un null ça n'a pas de sens
+            this.Prets.remove(pretASupprimer);
+        }
+    }
 
 }
