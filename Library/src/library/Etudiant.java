@@ -17,5 +17,5 @@ public class Etudiant extends Lecteur {
     public int getDureePret() {return DureePretEtu;}
     public String getAdressePostale(){return AdressePostale;};
 
-    public void setDureePret(int jours) { this.DureePretEtu = jours; }
+    
 }

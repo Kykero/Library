@@ -19,7 +19,5 @@ public class Enseignant extends Lecteur {
     // Getteurs et Setters
     public int getDureePret() {return DureePretEns;}
     public String getTelephone() { return Telephone; }
-
-    public void setDureePret(int jours) {this.DureePretEns = jours;}
     
 }

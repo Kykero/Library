@@ -15,17 +15,93 @@ public class GestionDonnees {
     // Sauvegarde des fichiers
     // =================================================================
     
+    // Sauvegarde générale
+    public void sauvegarder(Bibliotheque biblio) {
+        System.out.println("Début de la sauvegarde...");
+        
+        sauvegarderDocuments(biblio);
+        sauvegarderLecteurs(biblio);
+        sauvegarderPrets(biblio);
+        
+        System.out.println("Sauvegarde terminée !");
+    }
+    
+    // Writer permet d'écrire dans les fichier textes
+    private void sauvegarderDocuments(Bibliotheque biblio) {
+        try {
+            PrintWriter writer = new PrintWriter(new FileWriter(FICHIER_DOCS));
+            for (Document doc : biblio.obtenirToutLesDocuments()) {
+                String ligne = "";
+                
+                if (doc instanceof Livre) {
+                    Livre l = (Livre) doc;
+                    // Format : TYPE;REF;TITRE;PRIX;NB;AUTEUR;TAUX
+                    ligne = "LIVRE;" + l.getReference() + ";" + l.getTitre() + ";" + l.getPrix() + ";" 
+                    + l.getNbExemplaire() + ";" + l.getNomAuteur() + ";" + l.getTauxRemboursement();
+                } 
+                else if (doc instanceof Periodique) {
+                    Periodique p = (Periodique) doc;
+                    // Format : TYPE;REF;TITRE;PRIX;NB;NUMERO;ANNEE
+                    ligne = "PERIODIQUE;" + p.getReference() + ";" + p.getTitre() + ";" + p.getPrix() + ";" 
+                    + p.getNbExemplaire() + ";" + p.getNumero() + ";" + p.getAnneeParution();
+                }
+                writer.println(ligne);
+            }
+            writer.close();
+        } catch (IOException e) {
+            System.out.println("Erreur sauvegarde documents : " + e.getMessage());
+        }
+    }
+    
+    private void sauvegarderLecteurs(Bibliotheque biblio) {
+        try {
+            PrintWriter writer = new PrintWriter(new FileWriter(FICHIER_LECTEURS));
+            for (Lecteur lect : biblio.obtenirToutLesLecteurs()) {
+                String ligne = "";
+                
+                if (lect instanceof Etudiant) {
+                    Etudiant e = (Etudiant) lect;
+                    // Format : TYPE;NOM;EMAIL;INSTITUT;MAX;ADRESSE;DUREE
+                    ligne = "ETUDIANT;" + e.getNom() + ";" + e.getEmail() + ";" + e.getInstitut() + ";" 
+                    + e.getMaxEmprunt() + ";" + e.getAdressePostale() + ";" + e.getDureePret();
+                } 
+                else if (lect instanceof Enseignant) {
+                    Enseignant ens = (Enseignant) lect;
+                    // Format : TYPE;NOM;EMAIL;INSTITUT;MAX;TEL;DUREE
+                    ligne = "ENSEIGNANT;" + ens.getNom() + ";" + ens.getEmail() + ";" + ens.getInstitut() + ";" 
+                    + ens.getMaxEmprunt() + ";" + ens.getTelephone() + ";" + ens.getDureePret();
+                }
+                
+                writer.println(ligne);
+            }
+            
+            writer.close();
+        } catch (IOException e) {
+            System.out.println("Erreur sauvegarde lecteurs : " + e.getMessage());
+        }
+    }
     
     
-    
-    
-    
-    
-    
-    
-    
-    
-    
+    private void sauvegarderPrets(Bibliotheque biblio) {
+        try {
+            PrintWriter writer = new PrintWriter(new FileWriter("prets.txt"));
+            
+            for (Pret p : biblio.getToutLesPrets()) {
+                // Ligne importante : p.getDatePret()
+                // Java va écrire "2026-01-07" automatiquement grâce au toString() implicite
+                String ligne = p.getLecteur().getEmail() + ";" + 
+                p.getDocument().getReference() + ";" +
+                p.getDatePret() + ";" + 
+                p.isProlongation();
+                
+                writer.println(ligne);
+            }
+            
+            writer.close();
+        } catch (IOException e) {
+            System.out.println("Erreur : " + e.getMessage());
+        }
+    }
     
     
     
@@ -48,6 +124,10 @@ public class GestionDonnees {
     */
     private void chargerDocuments(Bibliotheque biblio) {
         File fichier = new File(FICHIER_DOCS);
+        
+        // DEBUG : Affiche le chemin absolu pour savoir où le fichier doit être
+        System.out.println("Lecture du fichier : " + fichier.getAbsolutePath());
+        
         if (!fichier.exists()) return; 
         
         // Lecture du fichier Documents (la doc recommende un try exception)
@@ -61,7 +141,7 @@ public class GestionDonnees {
                 String type = infos[0];
                 String ref = infos[1];
                 String titre = infos[2];
-                int prix = Integer.parseInt(infos[3]); //parseInt permet juste de convertir le string en int
+                int prix = (int) Float.parseFloat(infos[3]); //Obliger de caster pour les prix à virgules
                 int nb = Integer.parseInt(infos[4]);
                 
                 if (type.equals("LIVRE")) {
@@ -153,10 +233,7 @@ public class GestionDonnees {
                 if (lect != null && doc != null) {
                     
                     Pret p = new Pret(doc, lect);// Si on utilise requetePret() on risque de décrementer 2 fois
-                    
-                    // Note : Il faudra peut-être ajouter une méthode setDatePret() dans la classe Pret
-                    // p.setDatePret(LocalDate.parse(dateStr)); 
-                    
+                    p.setDatePret(LocalDate.parse(dateStr));                    
                     p.setProlongation(isProlonge);
                     biblio.getToutLesPrets().add(p);
                 }

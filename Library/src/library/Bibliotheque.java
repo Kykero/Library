@@ -49,7 +49,6 @@ public class Bibliotheque{
 
     public void modificationLecteur(Lecteur lect, int nouveauMaxEmprunt, int nouvelleDuree) {
         lect.setMaxEmprunt(nouveauMaxEmprunt);
-        lect.setDureePret(nouvelleDuree); // Abstract fais la différence entre les deux status différents
         System.out.println("Paramètres modifiés pour : " + lect.getNom());
     }
 
@@ -104,13 +103,13 @@ public class Bibliotheque{
         }
     }
     
-    public void prolongationPret(Lecteur lecteur, Document document, int duree) {
+    public void prolongationPret(Lecteur lecteur, Document document) {
         // On cherche le prêt
         for (Pret p : this.Prets) {
             if (p.getLecteur().equals(lecteur) && p.getDocument().equals(document)) {
                 // On active la prolongation
-                p.setProlongation(true, duree);
-                System.out.println("PROLONGATION : Prêt prolongé pour " + document.getTitre() + "de : " + duree + " jours");
+                p.setProlongation(true);
+                System.out.println("PROLONGATION : Prêt prolongé pour " + document.getTitre() + "de : " + 7 + " jours");
                 return; // Permet de stopper la boucle (Pas nécessaire mais évite de potentiels problèmes de runtime ou gc) 
             }
         }
