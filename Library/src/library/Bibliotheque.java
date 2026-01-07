@@ -47,6 +47,13 @@ public class Bibliotheque{
         return "Lecteur annhéanti";
     }
 
+    public void modificationLecteur(Lecteur lect, int nouveauMaxEmprunt, int nouvelleDuree) {
+        lect.setMaxEmprunt(nouveauMaxEmprunt);
+        lect.setDureePret(nouvelleDuree); // Abstract fais la différence entre les deux status différents
+        System.out.println("Paramètres modifiés pour : " + lect.getNom());
+    }
+
+
     /* ---------------------------*/
     /* --- Gestion des Prêts --- */
     /* ---------------------------*/
@@ -153,7 +160,7 @@ public class Bibliotheque{
 
 
     /* ---------------------------*/
-    /* --- Utilitaires --- */ 
+    /* --- Utilitaires (debug notamment) --- */ 
     /* ---------------------------*/
 
     public List<Pret> getToutLesPrets() {return this.Prets;}

@@ -1,0 +1,7 @@
+ETUDIANT;Alice Dupont;alice.dupont@univ.fr;Faculté des Sciences;3;12 Rue des Fleurs, Paris;14
+ENSEIGNANT;Professeur Tournesol;tournesol@univ.fr;Institut de Physique;10;0102030405;30
+ETUDIANT;Bob Martin;bob.martin@etud.fr;IUT Informatique;1;5 Avenue de la République, Lyon;7
+ENSEIGNANT;Marie Curie;marie.curie@science.org;Département Chimie;5;0607080910;45
+ETUDIANT;Charlie Chaplin;charlie@arts.com;Ecole des Beaux-Arts;5;10 Boulevard du Cinéma;21
+ETUDIANT;Jean Valjean;jean.valjean@histoire.fr;Faculté de Lettres;2;24601 Rue du Bagne;14
+ENSEIGNANT;Sherlock Holmes;sherlock@detective.uk;Criminologie;8;0770090000;20

@@ -25,4 +25,5 @@ public abstract class Lecteur {
 
     //Méthode Abstract
     public abstract int getDureePret();
+    public abstract int setDureePret(int jours);
 }

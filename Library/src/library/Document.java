@@ -1,5 +1,5 @@
 package library;
-public class Document 
+public class Document{
 
     // Attributs d'un document standard
     protected String reference;
@@ -42,4 +42,4 @@ public class Document
 
    public void retirerExemplaire(){this.nbExemplaire--;}
 
-
+}
