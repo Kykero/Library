@@ -18,41 +18,23 @@ public class Document {
    }
 
    // Getteurs et Setters
-   public String getRefereString(){
-    return reference;
-   }
+   public String getRefereString(){return reference;}
 
-   public String getTitre(){
-    return titre;
-   }
+   public String getTitre(){return titre;}
 
-   public double getPrix(){
-    return prix;
-   }
+   public double getPrix(){return prix;}
 
-   public int getNbExemplaire(){
-    return nbExemplaire;
-   }
+   public int getNbExemplaire(){return nbExemplaire;}
 
-   public void defNbExemplaire(int nbExemplaire){
-    this.nbExemplaire = nbExemplaire;
-   }
+   public void defNbExemplaire(int nbExemplaire){this.nbExemplaire = nbExemplaire;}
 
    /*
     * Méthodes de gestion des documents
     */
-   public boolean estDisponible(){
-    return this.nbExemplaire > 0;
-   }
+   public boolean estDisponible(){return this.nbExemplaire > 0;}
 
-   public void ajouterExemplaire(){
-    this.nbExemplaire++;
-   }
+   public void ajouterExemplaire(){this.nbExemplaire++;}
 
-   public void retirerExemplaire(){
-    this.nbExemplaire--;
-   }
-
-
+   public void retirerExemplaire(){this.nbExemplaire--;}
 
 }
