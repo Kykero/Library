@@ -8,3 +8,5 @@ PERIODIQUE;PER_102;National Geographic;8.0;1;500;2022
 LIVRE;LIV_005;Clean Code;45.0;-1;Robert C. Martin;0.15
 PERIODIQUE;PER_103;Vogue;7.0;1;854;2024
 LIVRE;LIV_006;1984;12.0;6;George Orwell;0.25
+LIVRE;LIV_OO7;Crimes et Châtiment;10.0;Fiodor Dostoïevski;0,25
+ 
