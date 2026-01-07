@@ -1,0 +1,20 @@
+package library;
+public class Livre extends Document {
+    
+    /*
+    * Attributs
+    */
+   private String Nom_Auteur;
+   private float Taux_Remboursement;
+
+   /* Constructeur par défaut */
+   public Livre(String ref, String titre, int prix, int nb, String auteur, float taux) {
+        super(ref, titre, prix, nb);
+        this.Nom_Auteur = auteur;
+        this.Taux_Remboursement = taux;
+    }
+
+    /* Getteurs */
+    public float getTauxRemboursement() { return Taux_Remboursement; }
+    public String getNomAuteur() { return Nom_Auteur; }
+}
