@@ -18,19 +18,21 @@ public class GestionDonnees {
     public void charger(Bibliotheque biblio) {
         System.out.println("Chargement des données...");
         chargerDocuments(biblio);
-        //chargerLecteurs(biblio);
+        chargerLecteurs(biblio);
         //chargerPrets(biblio);
         System.out.println("Chargement terminé.");
     }
 
     /* 
     * La méthode repose principalement sur du Regex et Parsing
+    * Ordre du document :
+    * type, ref, titre, prix, nb, auteur/numero, taux/annee
     */
     private void chargerDocuments(Bibliotheque biblio) {
         File fichier = new File(FICHIER_DOCS);
         if (!fichier.exists()) return; 
 
-        // Lecture du fichier Documents 
+        // Lecture du fichier Documents (la doc recommende un try exception)
         try {
             Scanner scanner = new Scanner(fichier);
 
@@ -64,6 +66,50 @@ public class GestionDonnees {
             System.out.println("Erreur lecture documents : " + e.getMessage());
         }
     }
+
+    /* 
+    * La méthode repose également sur du Regex et Parsing (même méthode que doc)
+    * Ordre du document :
+    * type, nom, email, institut, adresse/tel, durée
+    */
+    private void chargerLecteurs(Bibliotheque biblio) {
+        File fichier = new File(FICHIER_LECTEURS);
+        if (!fichier.exists()) return;
+
+        try {
+            Scanner scanner = new Scanner(fichier);
+
+            while (scanner.hasNextLine()) {
+                String ligne = scanner.nextLine();
+                String[] infos = ligne.split(";");
+
+                String type = infos[0];
+                String nom = infos[1];
+                String email = infos[2];
+                String institut = infos[3];
+                int max = Integer.parseInt(infos[4]);
+
+                if (type.equals("ETUDIANT")) {
+                    String adresse = infos[5];
+                    int duree = Integer.parseInt(infos[6]);
+                    Etudiant e = new Etudiant(nom, email, institut, max, adresse, duree);
+                    biblio.AjouterLecteur(e);
+                } 
+                else if (type.equals("ENSEIGNANT")) {
+                    String tel = infos[5];
+                    int duree = Integer.parseInt(infos[6]);
+                    Enseignant ens = new Enseignant(nom, email, institut, max, tel, duree);
+                    biblio.AjouterLecteur(ens);
+                }
+            }
+            scanner.close();
+        } catch (Exception e) {
+            System.out.println("Erreur lecture lecteurs : " + e.getMessage());
+        }
+    }
+
+
+
     
     
 }
