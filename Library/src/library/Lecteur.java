@@ -13,6 +13,11 @@ public abstract class Lecteur {
         this.MaxEmprunt = maxEmprunt;
     }
 
+    //toString
+    public String toString(){
+        return this.Nom + " (" + this.Email + ")";
+    }
+
     //Getteurs et Setters
     public String getNom() { return Nom; }
     public int getMaxEmprunt() { return MaxEmprunt; }

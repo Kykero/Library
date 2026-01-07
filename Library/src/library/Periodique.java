@@ -12,6 +12,11 @@ public class Periodique extends Document {
         this.Annee_Parution = annee;
     }
 
+    //toString
+    public String toString(){
+        return this.titre + " - N°" + this.Numero;
+    }
+
     // Getteurs
     public int getNumero() {return Numero;}
     public int getAnneeParution() {return Annee_Parution;}

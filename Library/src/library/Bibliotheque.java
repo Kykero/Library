@@ -152,6 +152,28 @@ public class Bibliotheque{
     }
 
 
+    /* ---------------------------*/
+    /* --- Utilitaires --- */ 
+    /* ---------------------------*/
+
+
+    public List<Document> obtenirToutLesDocuments() {
+        return this.Documents;
+    }
+
+    public List<Lecteur> obtenirToutLesLecteurs() {
+        return this.Lecteurs;
+    }
+
+    public void enregistrerDonnees() {
+        // Code pour écrire dans un fichier (optionnel pour l'instant)
+        System.out.println("Sauvegarde des données...");
+    }
+
+    public void chargerDonnees() {
+        // Code pour lire le fichier (optionnel pour l'instant)
+        System.out.println("Chargement des données...");
+    }
 
 
 

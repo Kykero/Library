@@ -8,8 +8,8 @@ public class Pret {
     private LocalDate DatePret;
     private LocalDate DateRetourPrevue; 
     private boolean Prolongation;
-
-public Pret(Document document, Lecteur lecteur) {
+    
+    public Pret(Document document, Lecteur lecteur) {
         this.Document = document;
         this.Lecteur = lecteur;
         this.DatePret = LocalDate.now();
@@ -17,13 +17,13 @@ public Pret(Document document, Lecteur lecteur) {
         this.DateRetourPrevue = this.DatePret.plusDays(Lecteur.getDureePret());
         this.Prolongation = false;
     }
-
+    
     // Getteurs et Setters (TODO : toString les class)
     public Document getDocument() { return Document; }
     public Lecteur getLecteur() { return Lecteur; }
     public LocalDate getDateRetourPrevue() { return DateRetourPrevue; }
     public boolean isProlongation() { return Prolongation; }
-
+    
     // Méthode pour prolonger le prêt, on ne mets pas de jours maximum
     public void setProlongation(boolean b, int duree) {
         b = true;
@@ -31,5 +31,10 @@ public Pret(Document document, Lecteur lecteur) {
         if(b) {
             this.DateRetourPrevue = this.DateRetourPrevue.plusDays(duree);
         }
+    }
+    
+    //toString || Je m'en sers pour débugger !
+    public String toString(){
+        return Document.getTitre() + " emprunté par " + Lecteur.getNom();
     }
 }

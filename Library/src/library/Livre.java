@@ -14,6 +14,12 @@ public class Livre extends Document {
         this.Taux_Remboursement = taux;
     }
 
+    //toString
+    public String toString(){
+        return this.titre + " (" + this.Nom_Auteur + ")";
+    }
+
+
     /* Getteurs */
     public float getTauxRemboursement() { return Taux_Remboursement; }
     public String getNomAuteur() { return Nom_Auteur; }
