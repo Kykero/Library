@@ -8,6 +8,7 @@ public class Pret {
     private LocalDate DatePret;
     private LocalDate DateRetourPrevue; 
     private boolean Prolongation;
+    private final static int JourProlongation = 7;
     
     public Pret(Document document, Lecteur lecteur) {
         this.Document = document;
@@ -18,18 +19,18 @@ public class Pret {
         this.Prolongation = false;
     }
     
-    // Getteurs et Setters (TODO : toString les class)
+    // Getteurs et Setters
     public Document getDocument() { return Document; }
     public Lecteur getLecteur() { return Lecteur; }
     public LocalDate getDateRetourPrevue() { return DateRetourPrevue; }
     public boolean isProlongation() { return Prolongation; }
     
     // Méthode pour prolonger le prêt, on ne mets pas de jours maximum
-    public void setProlongation(boolean b, int duree) {
+    public void setProlongation(boolean b) {
         b = true;
         this.Prolongation = b;
         if(b) {
-            this.DateRetourPrevue = this.DateRetourPrevue.plusDays(duree);
+            this.DateRetourPrevue = this.DateRetourPrevue.plusDays(JourProlongation); // On fixe le délai de prolongation
         }
     }
     

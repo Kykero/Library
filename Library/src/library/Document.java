@@ -22,17 +22,6 @@ public class Document{
     return this.titre;
    }
 
-   // Getteurs et Setters
-   public String getRefereString(){return reference;}
-
-   public String getTitre(){return titre;}
-
-   public double getPrix(){return prix;}
-
-   public int getNbExemplaire(){return nbExemplaire;}
-
-   public void defNbExemplaire(int nbExemplaire){this.nbExemplaire = nbExemplaire;}
-
    /*
     * Méthodes de gestion des documents
     */
@@ -42,4 +31,12 @@ public class Document{
 
    public void retirerExemplaire(){this.nbExemplaire--;}
 
+   // Getteurs et Setters
+   public String getRefereString(){return reference;}
+   public String getTitre(){return titre;}
+   public double getPrix(){return prix;}
+   public int getNbExemplaire(){return nbExemplaire;}
+   public String getReference(){return reference;}
+
+   public void defNbExemplaire(int nbExemplaire){this.nbExemplaire = nbExemplaire;}
 }

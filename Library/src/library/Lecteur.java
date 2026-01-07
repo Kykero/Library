@@ -20,6 +20,7 @@ public abstract class Lecteur {
 
     //Getteurs et Setters
     public String getNom() { return Nom; }
+    public String getEmail() {return Email;}
     public int getMaxEmprunt() { return MaxEmprunt; }
     public void setMaxEmprunt(int Max) { this.MaxEmprunt = Max; }
 
