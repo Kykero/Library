@@ -1,3 +1,4 @@
+package library;
 public class Document {
 
     // Attributs d'un document standard
@@ -16,10 +17,7 @@ public class Document {
     this.nbExemplaire = nbExemplaires;
    }
 
-   /*
-    * Getters et Setters
-    */
-
+   // Getteurs et Setters
    public String getRefereString(){
     return reference;
    }
