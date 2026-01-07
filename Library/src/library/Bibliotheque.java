@@ -1,5 +1,6 @@
 package library;
 
+import java.time.LocalDate;
 import java.util.*;
 
 public class Bibliotheque{ 
@@ -14,9 +15,11 @@ public class Bibliotheque{
         this.Lecteurs = new ArrayList<>();
         this.Prets = new ArrayList<>();
     }
-    // --- Méthodes ---
     
+    /* ---------------------------*/
     /* --- Gestion des Documents --- */ 
+    /* ---------------------------*/
+    
     public void AjouterDocument(Document doc) {
         Documents.add(doc);
         System.out.println("Document ajouté à la Bibliothèque : " + doc.getTitre());
@@ -26,7 +29,9 @@ public class Bibliotheque{
         Documents.remove(d);
     }
     
+    /* ---------------------------*/
     /* --- Gestion des Lecteurs --- */
+    /* ---------------------------*/
     
     public void AjouterLecteur(Lecteur lect) {
         Lecteurs.add(lect);
@@ -41,8 +46,10 @@ public class Bibliotheque{
         }
         return "Lecteur annhéanti";
     }
-    
+
+    /* ---------------------------*/
     /* --- Gestion des Prêts --- */
+    /* ---------------------------*/
     
     public int getNbEmpruntsEnCours(Lecteur lecteur) {
         int compteur = 0;
@@ -112,7 +119,6 @@ public class Bibliotheque{
         } else {
             aPayer = document.getPrix(); // Prix d'un périodique
         }
-
         System.out.println("Perte d'un document : " + lecteur.getNom() + " doit payer " + aPayer + " euros.");
 
         // Mets à jour le stock
@@ -127,5 +133,27 @@ public class Bibliotheque{
             this.Prets.remove(pretASupprimer);
         }
     }
+
+    public void notificationLecteur() {
+        LocalDate aujourdhui = LocalDate.now();
+        System.out.println("--- ! LISTE DES RETARDS ! ---");
+        boolean retardTrouve = false;
+
+        for (Pret p : this.Prets) {
+            if (p.getDateRetourPrevue().isBefore(aujourdhui)) { // is Before est une méthode de java time
+                System.out.println("- ! RETARD : " + p.getLecteur().getNom() + " aurait dû rendre '" 
+                                    + p.getDocument().getTitre() + "' le " + p.getDateRetourPrevue());
+                retardTrouve = true;
+            }
+        }
+        if (!retardTrouve) {
+            System.out.println("Aucun retard à signaler.");
+        }
+    }
+
+
+
+
+
 
 }
