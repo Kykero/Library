@@ -170,6 +170,15 @@ public int getNbEmpruntsEnCours(Lecteur lecteur) {
 }
 
 
+/* ---------------------------*/
+/* Méthodes pour interface graphique  
+/* ---------------------------*/
 
+public void toutEffacer() {
+    this.Documents.clear();
+    this.Lecteurs.clear();
+    this.Prets.clear();
+    System.out.println("Mémoire de la bibliothèque vidée.");
+}
 
 }

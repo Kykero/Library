@@ -190,7 +190,7 @@ public class GestionDonnees {
                 if (type.equals("ETUDIANT")) {
                     String adresse = infos[5];
                     int duree = Integer.parseInt(infos[6]);
-                    Etudiant e = new Etudiant(nom, email, institut, max, adresse, duree);
+                    Etudiant e = new Etudiant(nom, email, institut, adresse);
                     biblio.AjouterLecteur(e);
                 } 
                 else if (type.equals("ENSEIGNANT")) {
