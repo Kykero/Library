@@ -170,41 +170,47 @@ public class GestionDonnees {
     * Ordre du fichier texte :
     * type, nom, email, institut, adresse/tel, durée
     */
-    private void chargerLecteurs(Bibliotheque biblio) {
-        File fichier = new File(FICHIER_LECTEURS);
-        if (!fichier.exists()) return;
+   private void chargerLecteurs(Bibliotheque biblio) {
+    File fichier = new File(FICHIER_LECTEURS);
+    if (!fichier.exists()) return;
+    
+    try {
+        Scanner scanner = new Scanner(fichier);
         
-        try {
-            Scanner scanner = new Scanner(fichier);
+        while (scanner.hasNextLine()) {
+            String ligne = scanner.nextLine();
+            if (ligne.trim().isEmpty()) continue; // Sécurité ligne vide
+
+            String[] infos = ligne.split(";");
             
-            while (scanner.hasNextLine()) {
-                String ligne = scanner.nextLine();
-                String[] infos = ligne.split(";");
+            String type = infos[0];
+            String nom = infos[1];
+            String email = infos[2];
+            String institut = infos[3];
+            int max = Integer.parseInt(infos[4]); // Le max emprunt lu dans le fichier
+            
+            if (type.equals("ETUDIANT")) {
+                String adresse = infos[5];
+                int duree = Integer.parseInt(infos[6]); // La durée lue dans le fichier
                 
-                String type = infos[0];
-                String nom = infos[1];
-                String email = infos[2];
-                String institut = infos[3];
-                int max = Integer.parseInt(infos[4]);
-                
-                if (type.equals("ETUDIANT")) {
-                    String adresse = infos[5];
-                    int duree = Integer.parseInt(infos[6]);
-                    Etudiant e = new Etudiant(nom, email, institut, adresse);
-                    biblio.AjouterLecteur(e);
-                } 
-                else if (type.equals("ENSEIGNANT")) {
-                    String tel = infos[5];
-                    int duree = Integer.parseInt(infos[6]);
-                    Enseignant ens = new Enseignant(nom, email, institut, max, tel, duree);
-                    biblio.AjouterLecteur(ens);
-                }
+                // CORRECTION ICI : On utilise le constructeur complet
+                Etudiant e = new Etudiant(nom, email, institut, max, adresse, duree);
+                biblio.AjouterLecteur(e); // Attention à la majuscule (ajouterLecteur vs AjouterLecteur selon ta classe Biblio)
+            } 
+            else if (type.equals("ENSEIGNANT")) {
+                String tel = infos[5];
+                int duree = Integer.parseInt(infos[6]);
+
+                // CORRECTION ICI : On utilise le constructeur complet
+                Enseignant ens = new Enseignant(nom, email, institut, max, tel, duree);
+                biblio.AjouterLecteur(ens);
             }
-            scanner.close();
-        } catch (Exception e) {
-            System.out.println("Erreur lecture lecteurs : " + e.getMessage());
         }
+        scanner.close();
+    } catch (Exception e) {
+        System.out.println("Erreur lecture lecteurs : " + e.getMessage());
     }
+}
     
     
     /* 
