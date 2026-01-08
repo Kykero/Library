@@ -10,7 +10,7 @@ public class Enseignant extends Lecteur {
     private String Telephone;
     private int DureePretEns; 
     
-    public static final int MAX_EMPRUNT_DEFAUT = 1;
+    public static final int MAX_EMPRUNT_DEFAUT = 5;
     public static final int DUREE_PRET_DEFAUT = 20; 
     
     // Constructeur par défaut
