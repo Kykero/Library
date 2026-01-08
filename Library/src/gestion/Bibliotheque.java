@@ -1,8 +1,8 @@
 /**
- * Classe de gestion centrale de la bibliothèque.
- * Elle stocke les listes en mémoire et applique les règles métier
- * (Vérification des quotas, calcul des stocks, gestion des retards).
- */
+* Classe de gestion centrale de la bibliothèque.
+* Elle stocke les listes en mémoire et applique les règles métier
+* (Vérification des quotas, calcul des stocks, gestion des retards).
+*/
 
 package gestion;
 
@@ -21,6 +21,10 @@ public class Bibliotheque{
     private List<Lecteur> Lecteurs;
     private List<Pret> Prets;
     
+    //Prolongation dynamique
+    public static final int MAX_PROLONGATIONS_AUTORISEES = 2; // On dit qu'on peut rallonger que 2 fois max
+    public static final int MAX_JOURS_PAR_RALLONGE = 15;
+    
     public Bibliotheque() {
         this.Documents = new ArrayList<>();
         this.Lecteurs = new ArrayList<>();
@@ -38,6 +42,31 @@ public class Bibliotheque{
     
     public void supprimerDocument(Document d) {
         Documents.remove(d);
+    }
+    
+    public String prolongationPret(Lecteur lecteur, Document document, int joursDemandes) {
+        
+        // 1. Vérification de la saisie
+        if (joursDemandes <= 0) return "REFUS : Veuillez entrer un nombre positif.";
+        if (joursDemandes > MAX_JOURS_PAR_RALLONGE) {
+            return "REFUS : Limite dépassée (Max " + MAX_JOURS_PAR_RALLONGE + " jours).";
+        }
+        
+        for (Pret p : this.Prets) { // Attention à la casse (prets ou Prets selon ton code)
+            if (p.getLecteur().getEmail().equals(lecteur.getEmail()) && 
+            p.getDocument().getReference().equals(document.getReference())) {
+                
+                // 2. Vérification du quota (BONUS)
+                if (p.getNbProlongations() >= MAX_PROLONGATIONS_AUTORISEES) {
+                    return "REFUS : Quota atteint (" + MAX_PROLONGATIONS_AUTORISEES + " fois max).";
+                }
+                
+                // 3. Application
+                p.ajouterProlongation(joursDemandes);
+                return "SUCCÈS"; 
+            }
+        }
+        return "ERREUR : Prêt introuvable.";
     }
     
     /* ---------------------------*/
@@ -70,7 +99,7 @@ public class Bibliotheque{
     /* ---------------------------*/
     
     public boolean requetePret(Lecteur lecteur, Document doc) {
-
+        
         //Vérification du  nombre de prêt du lecteur
         long nbActuel = getNbEmpruntsEnCours(lecteur);
         if (nbActuel >= lecteur.getMaxEmprunt()) {
@@ -88,7 +117,7 @@ public class Bibliotheque{
     }
     
     public void retourPret(Lecteur lect, Document doc) {
-
+        
         Pret pretATrouver = null;
         for (Pret p : this.Prets) {
             if (p.getLecteur().equals(lect) && p.getDocument().equals(doc)) {
@@ -105,29 +134,6 @@ public class Bibliotheque{
             System.out.println("ERREUR : Aucun prêt trouvé pour ce lecteur et ce document.");
         }
     }
-    
-public boolean prolongationPret(Lecteur lecteur, Document document) {
-
-    // On parcourt la liste des prêts
-    for (Pret p : this.Prets) { 
-        boolean memeLecteur = p.getLecteur().getEmail().equals(lecteur.getEmail()); // On hard-code la comparaison avec le mail (j'ai eu des problèmes sinon)
-        boolean memeDoc = p.getDocument().getReference().equals(document.getReference());
-
-        if (memeLecteur && memeDoc) {
-
-            if (p.isProlongation()) {
-                System.out.println("REFUS : Ce prêt est déjà prolongé.");
-                return false; // On refuse
-            }
-
-            p.setProlongation(true);
-            System.out.println("SUCCÈS : Prêt prolongé pour " + document.getTitre());
-            return true; // On dit à l'interface que c'est bon
-        }
-    }
-    System.out.println("ERREUR : Prêt introuvable.");
-    return false; // On dit à l'interface que ça a échoué
-}
     
     public void declarationPerte(Lecteur lecteur, Document document) {
         double aPayer = 0;

@@ -1,9 +1,9 @@
 /**
- * Classe permettant de charger et de sauvegarder les données 
- * Les documents, les lecteurs et les prêts
- * Elle gère également la construction des bibliothèque en copiant les données des fichiers
- * textes.
- */
+* Classe permettant de charger et de sauvegarder les données 
+* Les documents, les lecteurs et les prêts
+* Elle gère également la construction des bibliothèque en copiant les données des fichiers
+* textes.
+*/
 
 package gestion;
 
@@ -103,12 +103,15 @@ public class GestionDonnees {
     
     private void sauvegarderPrets(Bibliotheque biblio) {
         try {
-            PrintWriter writer = new PrintWriter(new FileWriter(FICHIER_DOCS));
+            PrintWriter writer = new PrintWriter(new FileWriter(FICHIER_PRETS));
             
             for (Pret p : biblio.getToutLesPrets()) {
+                // Format : Email ; Ref ; Date ; NbFois ; TotalJours
                 String ligne = p.getLecteur().getEmail() + ";" + 
                 p.getDocument().getReference() + ";" +
-                p.getDatePret() + ";" + p.isProlongation();
+                p.getDatePret() + ";" + 
+                p.getNbProlongations() + ";" +  
+                p.getJoursSupplementaires();       
                 writer.println(ligne);
             }
             
@@ -238,32 +241,57 @@ public class GestionDonnees {
             
             while (scanner.hasNextLine()) {
                 String ligne = scanner.nextLine();
+                if (ligne.trim().isEmpty()) continue; // Sécurité ligne vide
+                
                 String[] infos = ligne.split(";");
                 
-                // Permet de lire les lignes du fichier correctemment
-                String emailLecteur = infos[0];
-                String refDoc = infos[1];
-                String dateStr = infos[2];
-    
-                // Permet de corriger le fichier prêts car j'ai rajouté une colonne true en plus à la fin, et j'ai pas envie de tout retaper.
-                boolean isProlonge = false;
-                if (infos.length >= 4) {
-                    isProlonge = Boolean.parseBoolean(infos[3]);
-                }
+                String email = infos[0];
+                String ref = infos[1];
+                String date = infos[2];
                 
-                Lecteur l = trouverLecteur(biblio, emailLecteur);
-                Document d = trouverDocument(biblio, refDoc);
+                // --- LOGIQUE DE MIGRATION (INTELLIGENTE) ---
+                int nbFois = 0;
+                int nbJours = 0;
+                
+                // CAS 1 : Nouveau Format (5 colonnes ou plus) -> On lit les chiffres
+                if (infos.length >= 5) {
+                    try {
+                        nbFois = Integer.parseInt(infos[3]);
+                        nbJours = Integer.parseInt(infos[4]);
+                    } catch (NumberFormatException e) {
+                        // Sécurité si jamais le fichier est corrompu
+                        nbFois = 0; nbJours = 0;
+                    }
+                } 
+                // CAS 2 : Ancien Format (4 colonnes) -> On convertit "true" en chiffres
+                else if (infos.length == 4) {
+                    String ancienBooleen = infos[3]; // "true" ou "false"
+                    if (ancienBooleen.equalsIgnoreCase("true")) {
+                        // On considère que l'ancien "true" équivaut à 1 rallonge de 14 jours
+                        nbFois = 1;
+                        nbJours = 14;
+                    }
+                }
+                // -------------------------------------------
+                
+                Lecteur l = trouverLecteur(biblio, email);
+                Document d = trouverDocument(biblio, ref);
                 
                 if (l != null && d != null) {
                     Pret p = new Pret(d, l);
-                    p.setDatePret(LocalDate.parse(dateStr));
-                    p.setProlongation(isProlonge);
+                    p.setDatePret(LocalDate.parse(date));
+                    
+                    // On injecte les valeurs calculées (qu'elles viennent du Cas 1 ou 2)
+                    p.setNbProlongations(nbFois);
+                    p.setJoursSupplementaires(nbJours);
+                    
                     biblio.getToutLesPrets().add(p);
                 }
             }
             scanner.close();
         } catch (Exception e) {
             System.out.println("Erreur lecture prêts : " + e.getMessage());
+            e.printStackTrace(); // Utile pour voir l'erreur exacte dans la console
         }
     }
     

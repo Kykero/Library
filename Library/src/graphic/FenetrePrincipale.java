@@ -1,22 +1,14 @@
 package graphic;
 
+import gestion.*;
+import modele.*;
+
 import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
-
-import gestion.Bibliotheque;
-import gestion.GestionDonnees;
 
 import java.awt.*;
 import java.time.LocalDate;
 import java.time.temporal.ChronoUnit;
-
-import modele.Document;
-import modele.Enseignant;
-import modele.Etudiant;
-import modele.Lecteur;
-import modele.Livre;
-import modele.Periodique;
-import modele.Pret;
 
 public class FenetrePrincipale extends JFrame {
     
@@ -25,7 +17,7 @@ public class FenetrePrincipale extends JFrame {
     
     // Tableaux
     private DefaultTableModel modelDocs, modelLecteurs, modelPrets;
-    private JTable tablePrets; // On le garde en attribut pour savoir quelle ligne est sélectionnée
+    private JTable tablePrets; 
     
     public FenetrePrincipale() {
         // --- INIT ---
@@ -33,7 +25,7 @@ public class FenetrePrincipale extends JFrame {
         gestion = new GestionDonnees();
         gestion.charger(maBiblio);
         
-        setTitle("Système de Gestion Bibliothèque");
+        setTitle("La tour de Babel !");
         setSize(1100, 700);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setLocationRelativeTo(null);
@@ -47,29 +39,41 @@ public class FenetrePrincipale extends JFrame {
         onglets.addTab("Documents", new JScrollPane(new JTable(modelDocs)));
         
         // Onglet 2 : Lecteurs
-        modelLecteurs = new DefaultTableModel(new String[]{"Type", "Nom", "Email", "Institut", "Emprunts", "Détail"}, 0);
+        modelLecteurs = new DefaultTableModel(new String[]{"Type", "Nom", "Email", "Institut", "Durée Max","Emprunts","Détail"}, 0);
         onglets.addTab("Lecteurs", new JScrollPane(new JTable(modelLecteurs)));
         
         // Onglet 3 : Prêts
-        modelPrets = new DefaultTableModel(new String[]{"Document", "Lecteur", "Email", "Institut", "Date Prêt", "Retour Prévu"}, 0);
+        modelPrets = new DefaultTableModel(new String[]{"Document", "Lecteur", "Email", "Institut", "Date Prêt", "Retour Prévu", "Prolongé?"}, 0);
         tablePrets = new JTable(modelPrets);
         onglets.addTab("Prêts en cours", new JScrollPane(tablePrets));
+        
         
         add(onglets, BorderLayout.CENTER);
         
         // --- BARRE D'OUTILS (Boutons) ---
         JToolBar toolbar = new JToolBar();
-        toolbar.setFloatable(false); // Fixer la barre
+        toolbar.setFloatable(false);
         
         JButton btnAddDoc = new JButton("Ajouter Document");
         JButton btnAddLecteur = new JButton("Ajouter Lecteur");
+        JButton btnSuppr = new JButton("Supprimer");
+        btnSuppr.setForeground(Color.RED); 
+        JButton btnModifLecteur = new JButton("Modifier Lecteur");
+        
         toolbar.add(btnAddDoc);
         toolbar.add(btnAddLecteur);
+        toolbar.add(btnSuppr);         // Ajout suppression
         toolbar.addSeparator();
         
-        JButton btnNouveauPret = new JButton("NOUVEAU PRÊT");
-        btnNouveauPret.setBackground(new Color(200, 255, 200)); // Vert clair
+        toolbar.add(btnModifLecteur);  // Ajout modification
+        toolbar.addSeparator();
+        
+        JButton btnNouveauPret = new JButton("Nouveau prêt");
+        btnNouveauPret.setBackground(new Color(200, 255, 200));
         toolbar.add(btnNouveauPret);
+        JButton btnProlonger = new JButton("Prolonger prêt");
+        btnProlonger.setBackground(new Color(200, 255, 200));
+        toolbar.add(btnProlonger);
         toolbar.addSeparator();
         
         JButton btnRetour = new JButton("Retourner Document");
@@ -84,19 +88,9 @@ public class FenetrePrincipale extends JFrame {
         
         add(toolbar, BorderLayout.NORTH);
         
-        // --- NOUVEAU BOUTON ---
-        JButton btnProlonger = new JButton("Prolonger (+14j)");
-        btnProlonger.setBackground(new Color(255, 255, 200)); // Jaune clair
-        // ----------------------
-        
-        toolbar.add(btnRetour);
-        toolbar.add(btnPerte);
-        toolbar.add(btnProlonger); // On l'ajoute à la barre
-        toolbar.addSeparator();
-        
         // --- BOUTONS DU BAS ---
         JPanel bas = new JPanel();
-        JButton btnRefresh = new JButton("Actualiser");
+        JButton btnRefresh = new JButton("Par défaut");
         JButton btnSave = new JButton("Sauvegarder");
         bas.add(btnRefresh);
         bas.add(btnSave);
@@ -104,21 +98,25 @@ public class FenetrePrincipale extends JFrame {
         
         // --- ACTIONS ---
         
-        // 1. Ajouts (Via la classe Formulaires)
+        // 1. Ajouts
         btnAddDoc.addActionListener(e -> Formulaires.ajouterDocument(this, maBiblio, this::rafraichirTout));
         btnAddLecteur.addActionListener(e -> Formulaires.ajouterLecteur(this, maBiblio, this::rafraichirTout));
         btnNouveauPret.addActionListener(e -> Formulaires.nouveauPret(this, maBiblio, this::rafraichirTout));
         
-        // 2. Gestion Prêts (Retour)
-        btnRetour.addActionListener(e -> actionRetourPret(false)); // False = pas perdu
+        // 2. Suppression (Nouveau)
+        btnSuppr.addActionListener(e -> actionSupprimer());
         
-        // 3. Gestion Prêts (Perte)
-        btnPerte.addActionListener(e -> actionRetourPret(true));  // True = déclaré perdu
+        // 3. Modification (Nouveau)
+        btnModifLecteur.addActionListener(e -> actionModifierLecteur());
         
-        // 4. Notification Retards
+        // 4. Gestion Prêts
+        btnRetour.addActionListener(e -> actionRetourPret(false));
+        btnPerte.addActionListener(e -> actionRetourPret(true));
+        btnProlonger.addActionListener(e -> actionProlonger());
+        
+        // 5. Retards & Système
         btnRetards.addActionListener(e -> afficherRetards());
         
-        // 5. Système
         btnRefresh.addActionListener(e -> {
             maBiblio.toutEffacer();
             gestion.charger(maBiblio);
@@ -131,14 +129,103 @@ public class FenetrePrincipale extends JFrame {
             System.exit(0);
         });
         
-        // ... autres actions ...
-        
-        btnProlonger.addActionListener(e -> actionProlonger());
-        
         rafraichirTout();
     }
     
     // --- LOGIQUE METIER ---
+    
+    // NOUVEAU : Supprimer un document ou un lecteur
+    private void actionSupprimer() {
+        JTabbedPane onglets = (JTabbedPane) ((BorderLayout)getContentPane().getLayout()).getLayoutComponent(BorderLayout.CENTER);
+        int indexOnglet = onglets.getSelectedIndex();
+        
+        if (indexOnglet == 0) { // Onglet DOCUMENTS
+            int ligne = ((JTable)((JScrollPane)onglets.getComponentAt(0)).getViewport().getView()).getSelectedRow();
+            if (ligne == -1) { JOptionPane.showMessageDialog(this, "Sélectionnez un document."); return; }
+            
+            String ref = (String) modelDocs.getValueAt(ligne, 1);
+            int confirm = JOptionPane.showConfirmDialog(this, "Supprimer le document " + ref + " ?", "Confirmation", JOptionPane.YES_NO_OPTION);
+            
+            if (confirm == JOptionPane.YES_OPTION) {
+                Document d = trouverDocument(ref);
+                if(d != null) {
+                    maBiblio.obtenirToutLesDocuments().remove(d);
+                    rafraichirTout();
+                    JOptionPane.showMessageDialog(this, "Document supprimé.");
+                }
+            }
+        } 
+        else if (indexOnglet == 1) { // Onglet LECTEURS
+            int ligne = ((JTable)((JScrollPane)onglets.getComponentAt(1)).getViewport().getView()).getSelectedRow();
+            if (ligne == -1) { JOptionPane.showMessageDialog(this, "Sélectionnez un lecteur."); return; }
+            
+            String email = (String) modelLecteurs.getValueAt(ligne, 2);
+            int confirm = JOptionPane.showConfirmDialog(this, "Supprimer le lecteur " + email + " ?", "Confirmation", JOptionPane.YES_NO_OPTION);
+            
+            if (confirm == JOptionPane.YES_OPTION) {
+                Lecteur l = trouverLecteur(email);
+                if(l != null) {
+                    if (maBiblio.getNbEmpruntsEnCours(l) > 0) {
+                        JOptionPane.showMessageDialog(this, "Impossible : Ce lecteur a des livres non rendus.", "Erreur", JOptionPane.ERROR_MESSAGE);
+                    } else {
+                        maBiblio.obtenirToutLesLecteurs().remove(l);
+                        rafraichirTout();
+                        JOptionPane.showMessageDialog(this, "Lecteur supprimé.");
+                    }
+                }
+            }
+        } else {
+            JOptionPane.showMessageDialog(this, "Placez-vous sur l'onglet Documents ou Lecteurs pour supprimer.");
+        }
+    }
+    
+    // NOUVEAU : Modifier un lecteur
+    private void actionModifierLecteur() {
+        JTabbedPane onglets = (JTabbedPane) ((BorderLayout)getContentPane().getLayout()).getLayoutComponent(BorderLayout.CENTER);
+        if (onglets.getSelectedIndex() != 1) {
+            JOptionPane.showMessageDialog(this, "Veuillez aller sur l'onglet 'Lecteurs' et sélectionner une ligne.");
+            return;
+        }
+        
+        JTable table = (JTable)((JScrollPane)onglets.getComponentAt(1)).getViewport().getView();
+        int ligne = table.getSelectedRow();
+        if (ligne == -1) return;
+        
+        String email = (String) modelLecteurs.getValueAt(ligne, 2);
+        Lecteur l = trouverLecteur(email);
+        
+        if (l != null) {
+            JTextField champMax = new JTextField(String.valueOf(l.getMaxEmprunt()));
+            JTextField champDuree = new JTextField(String.valueOf(l.getDureePret()));
+            
+            JPanel panel = new JPanel(new GridLayout(0, 1));
+            panel.add(new JLabel("Nouveau Quota Max (Livres) :"));
+            panel.add(champMax);
+            panel.add(new JLabel("Nouvelle Durée (Jours) :"));
+            panel.add(champDuree);
+            
+            int res = JOptionPane.showConfirmDialog(this, panel, "Modifier " + l.getNom(), JOptionPane.OK_CANCEL_OPTION);
+            
+            if (res == JOptionPane.OK_OPTION) {
+                try {
+                    int newMax = Integer.parseInt(champMax.getText());
+                    int newDuree = Integer.parseInt(champDuree.getText());
+                    
+                    l.setMaxEmprunt(newMax);
+                    
+                    // Gestion du polymorphisme pour setDureePret si ce n'est pas dans Lecteur
+                    if (l instanceof Etudiant) ((Etudiant)l).setDureePret(newDuree);
+                    else if (l instanceof Enseignant) ((Enseignant)l).setDureePret(newDuree);
+                    // Ou simplement l.setDureePret(newDuree) si tu as ajouté la méthode abstraite dans Lecteur
+                    
+                    rafraichirTout();
+                    JOptionPane.showMessageDialog(this, "Paramètres modifiés avec succès !");
+                } catch (Exception e) {
+                    JOptionPane.showMessageDialog(this, "Erreur : " + e.getMessage());
+                }
+            }
+        }
+    }
     
     private void actionRetourPret(boolean estPerdu) {
         int ligneSelect = tablePrets.getSelectedRow();
@@ -147,11 +234,9 @@ public class FenetrePrincipale extends JFrame {
             return;
         }
         
-        // 1. Récupération des infos visuelles
         String email = (String) modelPrets.getValueAt(ligneSelect, 2);
         String refDoc = extractRefFromTitle((String) modelPrets.getValueAt(ligneSelect, 0));
         
-        // 2. Recherche du vrai objet Prêt
         Pret pretConcerne = null;
         for(Pret p : maBiblio.getToutLesPrets()) {
             if(p.getLecteur().getEmail().equals(email) && p.getDocument().getReference().equals(refDoc)) {
@@ -165,137 +250,157 @@ public class FenetrePrincipale extends JFrame {
             Lecteur lecteur = pretConcerne.getLecteur();
             
             if(estPerdu) {
-                // Action backend
                 maBiblio.declarationPerte(lecteur, doc);
-                
-                // --- CALCUL DU PRIX (CORRECTION ICI) ---
                 double prix = doc.getPrix();
-                double taux = 0.0; // Par défaut (Périodique) c'est 0
-                
-                // Si c'est un Livre, on récupère son taux spécifique
+                double taux = 0.0;
                 if (doc instanceof Livre) {
                     Livre l = (Livre) doc; 
                     taux = l.getTauxRemboursement();
                 }
-                
                 double aPayer = prix + (prix * taux);
-                // ----------------------------------------
-                
                 JOptionPane.showMessageDialog(this, "PERTE DÉCLARÉE.\n" + lecteur.getNom() + 
                 " doit payer : " + aPayer + " €");
             } else {
-                // Retour normal
                 maBiblio.retourPret(lecteur, doc);
                 JOptionPane.showMessageDialog(this, "Document retourné avec succès.");
             }
-            
-            // Mise à jour de l'affichage
             rafraichirTout();
-        }
-    }
-    
-    private void afficherRetards() {
-        StringBuilder msg = new StringBuilder("LISTE DES RETARDS :\n\n");
-        boolean retardTrouve = false;
-        LocalDate aujourdhui = LocalDate.now();
-        
-        for(Pret p : maBiblio.getToutLesPrets()) {
-            // On recalcule la date de retour prévue
-            LocalDate retourPrevu = p.getDatePret().plusDays(p.getLecteur().getDureePret());
-            
-            if(aujourdhui.isAfter(retourPrevu)) {
-                long joursRetard = ChronoUnit.DAYS.between(retourPrevu, aujourdhui);
-                msg.append("- ").append(p.getLecteur().getNom())
-                .append(" (").append(p.getDocument().getTitre()).append(")")
-                .append(" : ").append(joursRetard).append(" jours de retard.\n");
-                retardTrouve = true;
-            }
-        }
-        
-        if(!retardTrouve) msg.append("Aucun retard à signaler ! Bravo.");
-        
-        JOptionPane.showMessageDialog(this, msg.toString(), "Notifications Retards", JOptionPane.WARNING_MESSAGE);
-    }
-    
-    // --- METHODES D'AFFICHAGE ---
-    
-    private void rafraichirTout() {
-        // 1. Docs
-        modelDocs.setRowCount(0);
-        for (Document d : maBiblio.obtenirToutLesDocuments()) {
-            String info = (d instanceof Livre) ? ((Livre)d).getNomAuteur() : "N°"+((Periodique)d).getNumero();
-            modelDocs.addRow(new Object[]{(d instanceof Livre ? "Livre" : "Périodique"), d.getReference(), d.getTitre(), d.getPrix(), d.getNbExemplaire(), info});
-        }
-        
-        // 2. Lecteurs
-        modelLecteurs.setRowCount(0);
-        for (Lecteur l : maBiblio.obtenirToutLesLecteurs()) {
-            String type = (l instanceof Etudiant) ? "Étudiant" : "Enseignant";
-            String info = (l instanceof Etudiant) ? ((Etudiant)l).getAdressePostale() : ((Enseignant)l).getTelephone();
-            int encours = maBiblio.getNbEmpruntsEnCours(l);
-            modelLecteurs.addRow(new Object[]{type, l.getNom(), l.getEmail(), l.getInstitut(), encours + "/" + l.getMaxEmprunt(), info});
-        }
-        
-        // 3. Prêts
-        modelPrets.setRowCount(0);
-        for (Pret p : maBiblio.getToutLesPrets()) {
-            LocalDate dateRetour = p.getDatePret().plusDays(p.getLecteur().getDureePret());
-            // Astuce : Je mets la Ref dans le titre pour pouvoir la retrouver lors du clic "Retour"
-            String titreComplet = "[" + p.getDocument().getReference() + "] " + p.getDocument().getTitre();
-            
-            modelPrets.addRow(new Object[]{
-                titreComplet,
-                p.getLecteur().getNom(),
-                p.getLecteur().getEmail(),
-                p.getLecteur().getInstitut(),
-                p.getDatePret(),
-                dateRetour
-            });
         }
     }
     
     private void actionProlonger() {
         int ligneSelect = tablePrets.getSelectedRow();
         if (ligneSelect == -1) {
-            JOptionPane.showMessageDialog(this, "Sélectionnez un prêt à prolonger.");
+            JOptionPane.showMessageDialog(this, "Sélectionnez un prêt.");
             return;
         }
         
-        // 1. Récupérer les infos
-        String email = (String) modelPrets.getValueAt(ligneSelect, 2); // Colonne Email
-        String refDoc = extractRefFromTitle((String) modelPrets.getValueAt(ligneSelect, 0)); // Colonne Titre
+        String email = (String) modelPrets.getValueAt(ligneSelect, 2);
+        String refDoc = extractRefFromTitle((String) modelPrets.getValueAt(ligneSelect, 0));
         
-        // 2. Trouver les objets
-        Lecteur l = null;
-        Document d = null;
-        
-        // On cherche dans la liste des prêts actuels pour retrouver les objets liés
-        for(Pret p : maBiblio.getToutLesPrets()) {
-            if(p.getLecteur().getEmail().equals(email) && p.getDocument().getReference().equals(refDoc)) {
-                l = p.getLecteur();
-                d = p.getDocument();
-                break;
-            }
-        }
+        Lecteur l = trouverLecteur(email);
+        Document d = trouverDocument(refDoc);
         
         if (l != null && d != null) {
-            // 3. Appel au backend
-            boolean succes = maBiblio.prolongationPret(l, d);
-            
-            if (succes) {
-                JOptionPane.showMessageDialog(this, "Prêt prolongé de 14 jours !");
-                rafraichirTout(); // Mise à jour du tableau
-            } else {
-                JOptionPane.showMessageDialog(this, "Impossible : Ce prêt est déjà prolongé ou n'existe pas.", "Erreur", JOptionPane.WARNING_MESSAGE);
+            // DEMANDE UTILISATEUR
+            String input = JOptionPane.showInputDialog(this, 
+                "Combien de jours ajouter ? (Max " + Bibliotheque.MAX_JOURS_PAR_RALLONGE + ")", 
+                "Prolongation", JOptionPane.QUESTION_MESSAGE);
+                
+                if (input == null || input.isEmpty()) return; // Annulation
+                
+                try {
+                    int jours = Integer.parseInt(input);
+                    
+                    // APPEL BACKEND
+                    String resultat = maBiblio.prolongationPret(l, d, jours);
+                    
+                    if (resultat.equals("SUCCÈS")) {
+                        JOptionPane.showMessageDialog(this, "Prêt rallongé de " + jours + " jours !");
+                        rafraichirTout();
+                    } else {
+                        JOptionPane.showMessageDialog(this, resultat, "Attention", JOptionPane.WARNING_MESSAGE);
+                    }
+                } catch (NumberFormatException ex) {
+                    JOptionPane.showMessageDialog(this, "Entrez un nombre valide.");
+                }
             }
         }
-    }
-    
-    // Petit utilitaire pour extraire "REF1" de "[REF1] Titre du livre"
-    private String extractRefFromTitle(String fullTitle) {
-        if(fullTitle.startsWith("[")) {
-            return fullTitle.substring(1, fullTitle.indexOf("]"));
+        
+        private void afficherRetards() {
+            StringBuilder msg = new StringBuilder("LISTE DES RETARDS :\n\n");
+            boolean retardTrouve = false;
+            LocalDate aujourdhui = LocalDate.now();
+            
+            for(Pret p : maBiblio.getToutLesPrets()) {
+                LocalDate retourPrevu = p.getDatePret().plusDays(p.getLecteur().getDureePret());
+                if(aujourdhui.isAfter(retourPrevu)) {
+                    long joursRetard = ChronoUnit.DAYS.between(retourPrevu, aujourdhui);
+                    msg.append("- ").append(p.getLecteur().getNom())
+                    .append(" (").append(p.getDocument().getTitre()).append(")")
+                    .append(" : ").append(joursRetard).append(" jours de retard.\n");
+                    retardTrouve = true;
+                }
+            }
+            if(!retardTrouve) msg.append("Aucun retard à signaler ! Bravo.");
+            JOptionPane.showMessageDialog(this, msg.toString(), "Notifications Retards", JOptionPane.WARNING_MESSAGE);
         }
-        return fullTitle;
+        
+        private void rafraichirTout() {
+            // 1. Docs
+            modelDocs.setRowCount(0);
+            for (Document d : maBiblio.obtenirToutLesDocuments()) {
+                String info = (d instanceof Livre) ? ((Livre)d).getNomAuteur() : "N°"+((Periodique)d).getNumero();
+                modelDocs.addRow(new Object[]{(d instanceof Livre ? "Livre" : "Périodique"), d.getReference(), d.getTitre(), d.getPrix(), d.getNbExemplaire(), info});
+            }
+            // 2. Lecteurs
+            // Dans rafraichirTout()...
+            // 2. Lecteurs
+            modelLecteurs.setRowCount(0);
+            for (Lecteur l : maBiblio.obtenirToutLesLecteurs()) {
+                String type = (l instanceof Etudiant) ? "Étudiant" : "Enseignant";
+                String info = (l instanceof Etudiant) ? ((Etudiant)l).getAdressePostale() : ((Enseignant)l).getTelephone();
+                int encours = maBiblio.getNbEmpruntsEnCours(l);
+                
+                // APRÈS (On ajoute l.getDureePret() au milieu) :
+                modelLecteurs.addRow(new Object[]{
+                    type, 
+                    l.getNom(), 
+                    l.getEmail(), 
+                    l.getInstitut(), 
+                    l.getDureePret() + " jours", 
+                    encours + "/" + l.getMaxEmprunt(), 
+                    info
+                });
+            }
+            // 3. Prêts
+            modelPrets.setRowCount(0);
+            for (Pret p : maBiblio.getToutLesPrets()) {
+                long dureeBase = p.getLecteur().getDureePret();
+                long bonus = p.getJoursSupplementaires(); // On récupère le total accumulé
+                
+                LocalDate dateRetour = p.getDatePret().plusDays(dureeBase + bonus);
+                
+                // Affichage intelligent : "Oui (1/2)" ou "Non"
+                String infoProlong = (p.getNbProlongations() > 0) 
+                ? "Oui (" + p.getNbProlongations() + "/" + Bibliotheque.MAX_PROLONGATIONS_AUTORISEES + ")" 
+                : "Non";
+                
+                String titreComplet = "[" + p.getDocument().getReference() + "] " + p.getDocument().getTitre();
+                
+                modelPrets.addRow(new Object[]{
+                    titreComplet,
+                    p.getLecteur().getNom(),
+                    p.getLecteur().getEmail(),
+                    p.getLecteur().getInstitut(),
+                    p.getDatePret(),
+                    dateRetour,    // Nouvelle date calculée
+                    infoProlong    // La nouvelle colonne
+                });
+            }
+        }
+        
+        // --- UTILITAIRES ---
+        
+        private Document trouverDocument(String ref) {
+            for(Document d : maBiblio.obtenirToutLesDocuments()) {
+                if(d.getReference().equals(ref)) return d;
+            }
+            return null;
+        }
+        
+        private Lecteur trouverLecteur(String email) {
+            for(Lecteur l : maBiblio.obtenirToutLesLecteurs()) {
+                if(l.getEmail().equals(email)) return l;
+            }
+            return null;
+        }
+        
+        private String extractRefFromTitle(String fullTitle) {
+            if(fullTitle.startsWith("[")) {
+                return fullTitle.substring(1, fullTitle.indexOf("]"));
+            }
+            return fullTitle;
+        }
+        
     }
-}

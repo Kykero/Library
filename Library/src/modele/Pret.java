@@ -12,25 +12,17 @@ public class Pret {
     private LocalDate DatePret;
     private LocalDate DateRetourPrevue; 
     private boolean Prolongation;
-    private final static int JourProlongation = 7;
+    
+    private int nbProlongations = 0;      
+    private int joursSupplementaires = 0; 
     
     public Pret(Document document, Lecteur lecteur) {
         this.Document = document;
         this.Lecteur = lecteur;
         this.DatePret = LocalDate.now();
-        // Calcul date retour basé sur le type de lecteur
         this.DateRetourPrevue = this.DatePret.plusDays(Lecteur.getDureePret());
-        this.Prolongation = false;
     }
     
-    // Méthode pour prolonger le prêt, on ne mets pas de jours maximum ici
-    public void setProlongation(boolean b) {
-        b = true;
-        this.Prolongation = b;
-        if(b) {
-            this.DateRetourPrevue = this.DateRetourPrevue.plusDays(JourProlongation); // On fixe le délai de prolongation
-        }
-    }
     
     public void setDatePret(LocalDate nouvelleDate) {
         this.DatePret = nouvelleDate;
@@ -49,4 +41,16 @@ public class Pret {
     public LocalDate getDateRetourPrevue() { return DateRetourPrevue; }
     public LocalDate getDatePret() {return DatePret;}
     public boolean isProlongation() { return Prolongation; }
+
+    //Prolongation dynamique (non plus fixé par un booléan comme avant, sur consigne de la professeure)
+    public int getNbProlongations() { return nbProlongations; }
+    public void setNbProlongations(int n) { this.nbProlongations = n; }
+
+    public int getJoursSupplementaires() { return joursSupplementaires; }
+    public void setJoursSupplementaires(int j) { this.joursSupplementaires = j; }
+
+    public void ajouterProlongation(int jours) {
+        this.nbProlongations++;
+        this.joursSupplementaires += jours;
+    }
 }
