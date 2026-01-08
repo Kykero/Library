@@ -299,9 +299,10 @@ public class FenetrePrincipale extends JFrame {
             
             if (res == JOptionPane.OK_OPTION) {
                 try {
+                    String textePrix = champPrix.getText().replace(",", ".");
                     // 1. On sauvegarde les infos communes
                     d.setTitre(champTitre.getText());
-                    d.setPrix(Integer.parseInt(champPrix.getText()));
+                    d.setPrix((int) Float.parseFloat(textePrix));
                     d.defNbExemplaire(Integer.parseInt(champStock.getText()));
                     
                     // 2. On sauvegarde les infos spécifiques (C'est ICI que ça se joue)
