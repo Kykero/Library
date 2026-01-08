@@ -20,7 +20,7 @@ public class FenetrePrincipale extends JFrame {
     private JTable tablePrets; 
     
     public FenetrePrincipale() {
-        // --- INIT ---
+        
         maBiblio = new Bibliotheque();
         gestion = new GestionDonnees();
         gestion.charger(maBiblio);
@@ -35,7 +35,7 @@ public class FenetrePrincipale extends JFrame {
         JTabbedPane onglets = new JTabbedPane();
         
         // Onglet 1 : Documents
-        modelDocs = new DefaultTableModel(new String[]{"Type", "Ref", "Titre", "Prix", "Stock", "Info"}, 0);
+        modelDocs = new DefaultTableModel(new String[]{"Type", "Ref", "Titre", "Prix", "Stock", "Info", "Taux/Année"}, 0);
         onglets.addTab("Documents", new JScrollPane(new JTable(modelDocs)));
         
         // Onglet 2 : Lecteurs
@@ -55,12 +55,17 @@ public class FenetrePrincipale extends JFrame {
         toolbar.setFloatable(false);
         
         JButton btnAddDoc = new JButton("Ajouter Document");
+        JButton btnModifDoc = new JButton("Modifier Document");
+        
         JButton btnAddLecteur = new JButton("Ajouter Lecteur");
         JButton btnSuppr = new JButton("Supprimer");
         btnSuppr.setForeground(Color.RED); 
         JButton btnModifLecteur = new JButton("Modifier Lecteur");
         
         toolbar.add(btnAddDoc);
+        toolbar.add(btnModifDoc);
+        toolbar.addSeparator();
+        
         toolbar.add(btnAddLecteur);
         toolbar.add(btnSuppr);         // Ajout suppression
         toolbar.addSeparator();
@@ -108,6 +113,7 @@ public class FenetrePrincipale extends JFrame {
         
         // 3. Modification (Nouveau)
         btnModifLecteur.addActionListener(e -> actionModifierLecteur());
+        btnModifDoc.addActionListener(e -> actionModifierDocument());
         
         // 4. Gestion Prêts
         btnRetour.addActionListener(e -> actionRetourPret(false));
@@ -227,6 +233,102 @@ public class FenetrePrincipale extends JFrame {
         }
     }
     
+    // Méthode pour modifier les propriétés des documents (sauf REF !!!!)
+    private void actionModifierDocument() {
+        JTabbedPane onglets = (JTabbedPane) ((BorderLayout)getContentPane().getLayout()).getLayoutComponent(BorderLayout.CENTER);
+        
+        // Vérif qu'on est sur le bon onglet
+        if (onglets.getSelectedIndex() != 0) {
+            JOptionPane.showMessageDialog(this, "Veuillez aller sur l'onglet 'Documents' et sélectionner une ligne.");
+            return;
+        }
+        
+        JTable table = (JTable)((JScrollPane)onglets.getComponentAt(0)).getViewport().getView();
+        int ligne = table.getSelectedRow();
+        if (ligne == -1) {
+            JOptionPane.showMessageDialog(this, "Veuillez sélectionner une ligne dans le tableau des documents !");
+            return; // On arrête tout ici
+        }
+        
+        // On récupère la référence (Colonne 1)
+        String ref = (String) modelDocs.getValueAt(ligne, 1);
+        
+        // Petite méthode utilitaire pour trouver le doc (si tu ne l'as pas déjà, ajoute-la ou adapte)
+        Document d = null;
+        for(Document doc : maBiblio.obtenirToutLesDocuments()) {
+            if(doc.getReference().equals(ref)) { d = doc; break; }
+        }
+        
+        if (d != null) {
+            // --- 1. Création des champs ---
+            JTextField champTitre = new JTextField(d.getTitre());
+            JTextField champPrix = new JTextField(String.valueOf(d.getPrix()));
+            JTextField champStock = new JTextField(String.valueOf(d.getNbExemplaire()));
+            
+            // Champs Spécifiques
+            JTextField champSpecifique1 = new JTextField(); // Auteur ou Numéro
+            JTextField champSpecifique2 = new JTextField(); // Taux ou Année
+            
+            String label1 = "", label2 = "";
+            
+            if (d instanceof Livre) {
+                label1 = "Auteur :";
+                label2 = "Taux Remboursement (0.x) :";
+                champSpecifique1.setText(((Livre)d).getNomAuteur());
+                champSpecifique2.setText(String.valueOf(((Livre)d).getTauxRemboursement()));
+            } else if (d instanceof Periodique) {
+                label1 = "Numéro :";
+                label2 = "Année :";
+                champSpecifique1.setText(String.valueOf(((Periodique)d).getNumero()));
+                champSpecifique2.setText(String.valueOf(((Periodique)d).getAnneeParution()));
+            }
+            
+            // --- 2. Construction du Formulaire ---
+            JPanel panel = new JPanel(new GridLayout(0, 1));
+            panel.add(new JLabel("Titre :"));      panel.add(champTitre);
+            panel.add(new JLabel("Prix :"));       panel.add(champPrix);
+            panel.add(new JLabel("Stock :"));      panel.add(champStock);
+            
+            panel.add(new JSeparator());
+            panel.add(new JLabel(label1));         panel.add(champSpecifique1);
+            panel.add(new JLabel(label2));         panel.add(champSpecifique2);
+            
+            panel.add(new JLabel("⚠️ La référence ne peut pas être modifiée."));
+            
+            int res = JOptionPane.showConfirmDialog(this, panel, "Modifier " + d.getReference(), JOptionPane.OK_CANCEL_OPTION);
+            
+            if (res == JOptionPane.OK_OPTION) {
+                try {
+                    // 1. On sauvegarde les infos communes
+                    d.setTitre(champTitre.getText());
+                    d.setPrix(Integer.parseInt(champPrix.getText()));
+                    d.defNbExemplaire(Integer.parseInt(champStock.getText()));
+                    
+                    // 2. On sauvegarde les infos spécifiques (C'est ICI que ça se joue)
+                    if (d instanceof Livre) {
+                        // On cast en Livre pour accéder aux méthodes setNomAuteur et setTauxRemboursement
+                        Livre leLivre = (Livre) d; 
+                        leLivre.setNomAuteur(champSpecifique1.getText());
+                        
+                        // Attention au Float ici !
+                        leLivre.setTauxRemboursement(Float.parseFloat(champSpecifique2.getText()));
+                    } 
+                    else if (d instanceof Periodique) {
+                        Periodique lePeriodique = (Periodique) d;
+                        lePeriodique.setNumero(Integer.parseInt(champSpecifique1.getText()));
+                        lePeriodique.setAnneeParution(Integer.parseInt(champSpecifique2.getText()));
+                    }
+                    
+                    rafraichirTout();
+                    JOptionPane.showMessageDialog(this, "Document mis à jour !");
+                    
+                } catch (Exception e) {
+                    JOptionPane.showMessageDialog(this, "Erreur : " + e.getMessage());
+                }
+            }
+        }
+    }
+    
     private void actionRetourPret(boolean estPerdu) {
         int ligneSelect = tablePrets.getSelectedRow();
         if (ligneSelect == -1) {
@@ -330,11 +432,11 @@ public class FenetrePrincipale extends JFrame {
             // 1. Docs
             modelDocs.setRowCount(0);
             for (Document d : maBiblio.obtenirToutLesDocuments()) {
-                String info = (d instanceof Livre) ? ((Livre)d).getNomAuteur() : "N°"+((Periodique)d).getNumero();
-                modelDocs.addRow(new Object[]{(d instanceof Livre ? "Livre" : "Périodique"), d.getReference(), d.getTitre(), d.getPrix(), d.getNbExemplaire(), info});
+                String type = (d instanceof Livre) ? "Livre" : "Périodique";
+                String info1 = (d instanceof Livre) ? ((Livre)d).getNomAuteur() : String.valueOf(((Periodique)d).getNumero());
+                String info2 = (d instanceof Livre) ? (((Livre)d).getTauxRemboursement() * 100) + "%" : String.valueOf(((Periodique)d).getAnneeParution());
+                modelDocs.addRow(new Object[]{type, d.getReference(), d.getTitre(), d.getPrix() + "€", d.getNbExemplaire(), info1, info2});
             }
-            // 2. Lecteurs
-            // Dans rafraichirTout()...
             // 2. Lecteurs
             modelLecteurs.setRowCount(0);
             for (Lecteur l : maBiblio.obtenirToutLesLecteurs()) {

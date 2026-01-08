@@ -22,9 +22,13 @@ public class Periodique extends Document {
         return this.titre + " - N°" + this.Numero;
     }
 
-    // Getteurs
+    // Getteurs et setters
     public int getNumero() {return Numero;}
     public int getAnneeParution() {return Annee_Parution;}
+
+    public void setNumero(int numero) {this.Numero = numero;}
+
+    public void setAnneeParution(int annee) {this.Annee_Parution = annee;}
 
 }
 

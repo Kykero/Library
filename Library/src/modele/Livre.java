@@ -25,7 +25,10 @@ public class Livre extends Document {
     }
 
 
-    /* Getteurs */
+    /* Getteurs et setters */
     public float getTauxRemboursement() { return Taux_Remboursement; }
     public String getNomAuteur() { return Nom_Auteur; }
+    
+    public void setNomAuteur(String auteur) {this.Nom_Auteur = auteur; }
+    public void setTauxRemboursement(float taux) {this.Taux_Remboursement = taux;}
 }
