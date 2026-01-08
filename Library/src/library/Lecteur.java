@@ -26,7 +26,8 @@ public abstract class Lecteur {
     
     public void setMaxEmprunt(int Max) { this.MaxEmprunt = Max; }
     
-    //Méthode Abstract
-    public abstract int getDureePret();
+    //Méthode Abstract (j'ai enfin compris !)
+    public abstract int getDureePret(); 
+    // On possède 2 types de Durée de Prêts, donc on abstract dans la classe "mère" pour pouvoir faire référence aux méthodes getdureePret des classes child
   
 }

@@ -19,7 +19,7 @@ public class Pret {
         this.Prolongation = false;
     }
     
-    // Méthode pour prolonger le prêt, on ne mets pas de jours maximum
+    // Méthode pour prolonger le prêt, on ne mets pas de jours maximum ici
     public void setProlongation(boolean b) {
         b = true;
         this.Prolongation = b;

@@ -5,7 +5,7 @@ import java.util.*;
 
 public class Bibliotheque{ 
     
-    // Oeuvres présentes dans la bibliothèque
+    // Inventaire de la bibliothèque
     private List<Document> Documents;
     private List<Lecteur> Lecteurs;
     private List<Pret> Prets;
@@ -39,7 +39,7 @@ public class Bibliotheque{
     }
     
     public String SupprimerLecteur(Lecteur lect ){
-        if(lect.getDureePret() == 0){  // Vérifie que le lecteur possède aucun prêt
+        if(lect.getDureePret() == 0){  // Vérifie que le lecteur possède aucun prêt sinon les oeuvres disparaît avec lui
             Lecteurs.remove(lect);
         }else {
             return "Le lecteur possède un livre";
@@ -47,6 +47,7 @@ public class Bibliotheque{
         return "Lecteur annhéanti";
     }
     
+    //TODO : Check la fonction car elle me parait bizarre
     public void modificationLecteur(Lecteur lect, int nouveauMaxEmprunt, int nouvelleDuree) {
         lect.setMaxEmprunt(nouveauMaxEmprunt);
         System.out.println("Paramètres modifiés pour : " + lect.getNom());
@@ -58,6 +59,7 @@ public class Bibliotheque{
     /* ---------------------------*/
     
     public boolean requetePret(Lecteur lecteur, Document doc) {
+
         //Vérification du  nombre de prêt du lecteur
         long nbActuel = getNbEmpruntsEnCours(lecteur);
         if (nbActuel >= lecteur.getMaxEmprunt()) {
@@ -75,6 +77,7 @@ public class Bibliotheque{
     }
     
     public void retourPret(Lecteur lect, Document doc) {
+
         Pret pretATrouver = null;
         for (Pret p : this.Prets) {
             if (p.getLecteur().equals(lect) && p.getDocument().equals(doc)) {
@@ -92,27 +95,37 @@ public class Bibliotheque{
         }
     }
     
-    public void prolongationPret(Lecteur lecteur, Document document) {
-        // On cherche le prêt
-        for (Pret p : this.Prets) {
-            if (p.getLecteur().equals(lecteur) && p.getDocument().equals(document)) {
-                // On active la prolongation
-                p.setProlongation(true);
-                System.out.println("PROLONGATION : Prêt prolongé pour " + document.getTitre() + " de : " + 7 + "jours");
-                return; // Permet de stopper la boucle (Pas nécessaire mais évite de potentiels problèmes de runtime ou gc) 
+public boolean prolongationPret(Lecteur lecteur, Document document) {
+
+    // On parcourt la liste des prêts
+    for (Pret p : this.Prets) { 
+        boolean memeLecteur = p.getLecteur().getEmail().equals(lecteur.getEmail()); // On hard-code la comparaison avec le mail (j'ai eu des problèmes sinon)
+        boolean memeDoc = p.getDocument().getReference().equals(document.getReference());
+
+        if (memeLecteur && memeDoc) {
+
+            if (p.isProlongation()) {
+                System.out.println("REFUS : Ce prêt est déjà prolongé.");
+                return false; // On refuse
             }
+
+            p.setProlongation(true);
+            System.out.println("SUCCÈS : Prêt prolongé pour " + document.getTitre());
+            return true; // On dit à l'interface que c'est bon
         }
-        System.out.println("Impossible de prolonger : Prêt non trouvé.");
     }
+    System.out.println("ERREUR : Prêt introuvable.");
+    return false; // On dit à l'interface que ça a échoué
+}
     
     public void declarationPerte(Lecteur lecteur, Document document) {
         double aPayer = 0;
-        if (document instanceof Livre) { // Permet de déterminer la nature du document
-            Livre livrePerdu = (Livre) document; // Cast pour accéder aux méthodes de Livre
+        if (document instanceof Livre) { // Permet de déterminer la nature du document (très pratique la doc java quand même)
+            Livre livrePerdu = (Livre) document; // Obligé de caster sinon on a aucun accès aux méthodes associés aux livres
             double majoration = livrePerdu.getPrix() * livrePerdu.getTauxRemboursement();
             aPayer = livrePerdu.getPrix() + majoration;
         } else {
-            aPayer = document.getPrix(); // Prix d'un périodique
+            aPayer = document.getPrix(); 
         }
         System.out.println("Perte d'un document : " + lecteur.getNom() + " doit payer " + aPayer + " euros.");
         
@@ -135,7 +148,7 @@ public void notificationLecteur() {
     boolean retardTrouve = false;
     
     for (Pret p : this.Prets) {
-        if (p.getDateRetourPrevue().isBefore(aujourdhui)) { // is Before est une méthode de java time
+        if (p.getDateRetourPrevue().isBefore(aujourdhui)) { // is Before est une méthode déjà implémenté par java.time
             System.out.println("- ! RETARD : " + p.getLecteur().getNom() + " aurait dû rendre '" 
             + p.getDocument().getTitre() + "' le " + p.getDateRetourPrevue());
             retardTrouve = true;

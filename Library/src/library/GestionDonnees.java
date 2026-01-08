@@ -6,10 +6,14 @@ import java.util.*;
 
 public class GestionDonnees {
     
-    // Fichiers à gérer
+    // Fichiers à gérer à la racine du projet !
     private static final String FICHIER_DOCS = "Documents.txt";
     private static final String FICHIER_LECTEURS = "Lecteurs.txt";
     private static final String FICHIER_PRETS = "Prets.txt";
+    
+    
+    ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    
     
     // =================================================================
     // Sauvegarde des fichiers
@@ -84,16 +88,12 @@ public class GestionDonnees {
     
     private void sauvegarderPrets(Bibliotheque biblio) {
         try {
-            PrintWriter writer = new PrintWriter(new FileWriter("prets.txt"));
+            PrintWriter writer = new PrintWriter(new FileWriter(FICHIER_DOCS));
             
             for (Pret p : biblio.getToutLesPrets()) {
-                // Ligne importante : p.getDatePret()
-                // Java va écrire "2026-01-07" automatiquement grâce au toString() implicite
                 String ligne = p.getLecteur().getEmail() + ";" + 
                 p.getDocument().getReference() + ";" +
-                p.getDatePret() + ";" + 
-                p.isProlongation();
-                
+                p.getDatePret() + ";" + p.isProlongation();
                 writer.println(ligne);
             }
             
@@ -103,6 +103,8 @@ public class GestionDonnees {
         }
     }
     
+    
+    ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     
     
     // =================================================================
@@ -125,12 +127,12 @@ public class GestionDonnees {
     private void chargerDocuments(Bibliotheque biblio) {
         File fichier = new File(FICHIER_DOCS);
         
-        // DEBUG : Affiche le chemin absolu pour savoir où le fichier doit être
+        // DEBUG : Print le chemin
         System.out.println("Lecture du fichier : " + fichier.getAbsolutePath());
         
         if (!fichier.exists()) return; 
         
-        // Lecture du fichier Documents (la doc recommende un try exception)
+        // Lecture du fichier Documents (la doc recommende un try exception sur oracle)
         try {
             Scanner scanner = new Scanner(fichier);
             
@@ -154,7 +156,6 @@ public class GestionDonnees {
                     int numero = Integer.parseInt(infos[5]);
                     int annee = Integer.parseInt(infos[6]);
                     Periodique p = new Periodique(ref, titre, prix, numero, annee);
-                    // On force le nombre d'exemplaires car le constructeur met 1 par défaut
                     p.defNbExemplaire(nb); 
                     biblio.AjouterDocument(p);
                 }
@@ -166,51 +167,47 @@ public class GestionDonnees {
     }
     
     /* 
-    * La méthode repose également sur du Regex et Parsing (même méthode que doc)
+    * La méthode repose également sur du Regex et Parsing (même méthode que document)
     * Ordre du fichier texte :
     * type, nom, email, institut, adresse/tel, durée
     */
-   private void chargerLecteurs(Bibliotheque biblio) {
-    File fichier = new File(FICHIER_LECTEURS);
-    if (!fichier.exists()) return;
-    
-    try {
-        Scanner scanner = new Scanner(fichier);
+    private void chargerLecteurs(Bibliotheque biblio) {
+        File fichier = new File(FICHIER_LECTEURS);
+        if (!fichier.exists()) return;
         
-        while (scanner.hasNextLine()) {
-            String ligne = scanner.nextLine();
-            if (ligne.trim().isEmpty()) continue; // Sécurité ligne vide
-
-            String[] infos = ligne.split(";");
+        try {
+            Scanner scanner = new Scanner(fichier);
             
-            String type = infos[0];
-            String nom = infos[1];
-            String email = infos[2];
-            String institut = infos[3];
-            int max = Integer.parseInt(infos[4]); // Le max emprunt lu dans le fichier
-            
-            if (type.equals("ETUDIANT")) {
-                String adresse = infos[5];
-                int duree = Integer.parseInt(infos[6]); // La durée lue dans le fichier
+            while (scanner.hasNextLine()) {
+                String ligne = scanner.nextLine();
+                if (ligne.trim().isEmpty()) continue; // Empêche le crash si une ligne est vide
                 
-                // CORRECTION ICI : On utilise le constructeur complet
-                Etudiant e = new Etudiant(nom, email, institut, max, adresse, duree);
-                biblio.AjouterLecteur(e); // Attention à la majuscule (ajouterLecteur vs AjouterLecteur selon ta classe Biblio)
-            } 
-            else if (type.equals("ENSEIGNANT")) {
-                String tel = infos[5];
-                int duree = Integer.parseInt(infos[6]);
-
-                // CORRECTION ICI : On utilise le constructeur complet
-                Enseignant ens = new Enseignant(nom, email, institut, max, tel, duree);
-                biblio.AjouterLecteur(ens);
+                String[] infos = ligne.split(";");
+                
+                String type = infos[0];
+                String nom = infos[1];
+                String email = infos[2];
+                String institut = infos[3];
+                int max = Integer.parseInt(infos[4]); 
+                
+                if (type.equals("ETUDIANT")) {
+                    String adresse = infos[5];
+                    int duree = Integer.parseInt(infos[6]); 
+                    Etudiant e = new Etudiant(nom, email, institut, max, adresse, duree); //Il s'agit du second constructeur de la classe étudiant, m'évite de réecrire du boilerplate
+                    biblio.AjouterLecteur(e); 
+                } 
+                else if (type.equals("ENSEIGNANT")) {
+                    String tel = infos[5];
+                    int duree = Integer.parseInt(infos[6]);
+                    Enseignant ens = new Enseignant(nom, email, institut, max, tel, duree);
+                    biblio.AjouterLecteur(ens);
+                }
             }
+            scanner.close();
+        } catch (Exception e) {
+            System.out.println("Erreur lecture lecteurs : " + e.getMessage());
         }
-        scanner.close();
-    } catch (Exception e) {
-        System.out.println("Erreur lecture lecteurs : " + e.getMessage());
     }
-}
     
     
     /* 
@@ -223,23 +220,28 @@ public class GestionDonnees {
         
         try {
             Scanner scanner = new Scanner(fichier);
+            
             while (scanner.hasNextLine()) {
                 String ligne = scanner.nextLine();
                 String[] infos = ligne.split(";");
                 
+                // Permet de lire les lignes du fichier correctemment
                 String emailLecteur = infos[0];
                 String refDoc = infos[1];
                 String dateStr = infos[2];
-                boolean isProlonge = Boolean.parseBoolean(infos[3]);
+    
+                // Permet de corriger le fichier prêts car j'ai rajouté une colonne true en plus à la fin, et j'ai pas envie de tout retaper.
+                boolean isProlonge = false;
+                if (infos.length >= 4) {
+                    isProlonge = Boolean.parseBoolean(infos[3]);
+                }
                 
-                //Recherche et lien avec les documents et lecteur
-                Lecteur lect = trouverLecteur(biblio, emailLecteur);
-                Document doc = trouverDocument(biblio, refDoc);
+                Lecteur l = trouverLecteur(biblio, emailLecteur);
+                Document d = trouverDocument(biblio, refDoc);
                 
-                if (lect != null && doc != null) {
-                    
-                    Pret p = new Pret(doc, lect);// Si on utilise requetePret() on risque de décrementer 2 fois
-                    p.setDatePret(LocalDate.parse(dateStr));                    
+                if (l != null && d != null) {
+                    Pret p = new Pret(d, l);
+                    p.setDatePret(LocalDate.parse(dateStr));
                     p.setProlongation(isProlonge);
                     biblio.getToutLesPrets().add(p);
                 }
