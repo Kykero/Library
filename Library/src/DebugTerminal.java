@@ -1,10 +1,13 @@
-//==================================================================\\
-// Zone permettant de débugger sans passer par l'interface graphique \\
-//==================================================================\\
+/**
+ * Zone de débuggage avec le terminal
+ */
 
-package library;
+import gestion.Bibliotheque;
+import gestion.GestionDonnees;
+import modele.Document;
+import modele.Lecteur;
 
-public class MainApp {
+public class DebugTerminal {
 
     public static void main(String[] args) {
         // 1. Initialisation

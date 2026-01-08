@@ -1,4 +1,9 @@
-package library;
+/**
+ * Classe permettant de créer un lecteur
+ * Elle est la classe mère de Enseignant et Etudiant
+ */
+
+package modele;
 
 public abstract class Lecteur {
     protected String Nom;

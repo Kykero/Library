@@ -1,7 +1,18 @@
-package library;
+/**
+ * Classe de gestion centrale de la bibliothèque.
+ * Elle stocke les listes en mémoire et applique les règles métier
+ * (Vérification des quotas, calcul des stocks, gestion des retards).
+ */
+
+package gestion;
 
 import java.time.LocalDate;
 import java.util.*;
+
+import modele.Document;
+import modele.Lecteur;
+import modele.Livre;
+import modele.Pret;
 
 public class Bibliotheque{ 
     

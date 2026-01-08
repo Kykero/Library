@@ -2,11 +2,21 @@ package graphic;
 
 import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
+
+import gestion.Bibliotheque;
+import gestion.GestionDonnees;
+
 import java.awt.*;
 import java.time.LocalDate;
 import java.time.temporal.ChronoUnit;
 
-import library.*;
+import modele.Document;
+import modele.Enseignant;
+import modele.Etudiant;
+import modele.Lecteur;
+import modele.Livre;
+import modele.Periodique;
+import modele.Pret;
 
 public class FenetrePrincipale extends JFrame {
     
@@ -40,7 +50,7 @@ public class FenetrePrincipale extends JFrame {
         modelLecteurs = new DefaultTableModel(new String[]{"Type", "Nom", "Email", "Institut", "Emprunts", "Détail"}, 0);
         onglets.addTab("Lecteurs", new JScrollPane(new JTable(modelLecteurs)));
         
-        // Onglet 3 : Prêts (Nouveau !)
+        // Onglet 3 : Prêts
         modelPrets = new DefaultTableModel(new String[]{"Document", "Lecteur", "Email", "Institut", "Date Prêt", "Retour Prévu"}, 0);
         tablePrets = new JTable(modelPrets);
         onglets.addTab("Prêts en cours", new JScrollPane(tablePrets));

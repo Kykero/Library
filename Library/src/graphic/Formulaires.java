@@ -1,8 +1,16 @@
 package graphic;
 
 import javax.swing.*;
+
+import gestion.Bibliotheque;
+
 import java.awt.*;
-import library.*;
+import modele.Document;
+import modele.Enseignant;
+import modele.Etudiant;
+import modele.Lecteur;
+import modele.Livre;
+import modele.Periodique;
 
 public class Formulaires {
 

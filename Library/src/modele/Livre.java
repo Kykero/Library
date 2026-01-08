@@ -1,4 +1,9 @@
-package library;
+/**
+ * Classe permettant de construire un livre
+ * Un livre possède en plus un taux de remboursement
+ */
+
+package modele;
 public class Livre extends Document {
     
     /*

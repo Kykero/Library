@@ -4,7 +4,7 @@ PERIODIQUE;PER_100;Science et Vie;6.0;1;1245;2023
 PERIODIQUE;PER_101;Le Monde Informatique;5.0;1;1702;2024
 LIVRE;LIV_004;Les Misérables;15.0;4;Victor Hugo;0.5
 PERIODIQUE;PER_102;National Geographic;8.0;1;500;2022
-LIVRE;LIV_005;Clean Code;45.0;-4;Robert C. Martin;0.15
+LIVRE;LIV_005;Clean Code;45.0;4;Robert C. Martin;0.15
 PERIODIQUE;PER_103;Vogue;7.0;1;854;2024
 LIVRE;LIV_006;1984;12.0;6;George Orwell;0.25
 LIVRE;LIV_007;Crimes et Châtiment;5.0;6;Fiodor Dostoïevski;0.25

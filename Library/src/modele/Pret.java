@@ -1,4 +1,8 @@
-package library;
+/**
+ * Classe permettant de faire  des prêts et des prolongations
+ */
+
+package modele;
 
 import java.time.*; // Permet de pouvoir calculer les durées de prêt et les dates de retour prévu
 

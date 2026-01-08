@@ -1,4 +1,10 @@
-package library;
+/**
+ * Classe Document
+ * Permet de définir/construire un document
+ * C'est la classe mère des classes Enseignant et Etudiant
+ */
+
+package modele;
 public class Document{
 
     // Attributs d'un document standard

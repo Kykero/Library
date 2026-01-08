@@ -1,4 +1,9 @@
-package library;
+/**
+ * Classe permettant de construire un périodique
+ * Un périodique possède un numéro et une année de parution
+ */
+
+package modele;
 
 public class Periodique extends Document {
     private int Numero;

@@ -1,8 +1,23 @@
-package library;
+/**
+ * Classe permettant de charger et de sauvegarder les données 
+ * Les documents, les lecteurs et les prêts
+ * Elle gère également la construction des bibliothèque en copiant les données des fichiers
+ * textes.
+ */
+
+package gestion;
 
 import java.io.*;
 import java.time.*;
 import java.util.*;
+
+import modele.Document;
+import modele.Enseignant;
+import modele.Etudiant;
+import modele.Lecteur;
+import modele.Livre;
+import modele.Periodique;
+import modele.Pret;
 
 public class GestionDonnees {
     

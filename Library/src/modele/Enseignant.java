@@ -1,4 +1,10 @@
-package library;
+/**
+ * Classe permettant de définir un Enseignant
+ * C'est une classe child de  Lecteur
+ * Un enseignant possède un numéro de téléphone en plus que les étudiants
+ */
+
+package modele;
 
 public class Enseignant extends Lecteur {
     private String Telephone;

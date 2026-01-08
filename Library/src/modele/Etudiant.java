@@ -1,4 +1,9 @@
-package library;
+/**
+ * Classe permettant de définir un étudiant
+ * C'est une classe child de Lecteurs
+ */
+
+package modele;
 
 public class Etudiant extends Lecteur {
     private String AdressePostale;
