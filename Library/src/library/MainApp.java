@@ -1,3 +1,7 @@
+//==================================================================\\
+// Zone permettant de débugger sans passer par l'interface graphique \\
+//==================================================================\\
+
 package library;
 
 public class MainApp {

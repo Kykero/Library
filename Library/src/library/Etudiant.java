@@ -27,7 +27,6 @@ public class Etudiant extends Lecteur {
 
     //Getteurs et Setters
     public int getDureePret() { return DureePretEtu; }
-    
     public void setDureePret(int jours) { this.DureePretEtu = jours; }
     public String getAdressePostale(){ return AdressePostale; }
 }

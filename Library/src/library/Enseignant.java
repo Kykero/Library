@@ -14,7 +14,7 @@ public class Enseignant extends Lecteur {
         this.DureePretEns = DUREE_PRET_DEFAUT;
     }
 
-    // -Second constructeur nécessaire quand on charge les données
+    // Second constructeur nécessaire quand on charge les données
     public Enseignant(String nom, String email, String inst, int maxEmp, String tel, int duree) {
         super(nom, email, inst, maxEmp); 
         this.Telephone = tel;
