@@ -67,10 +67,8 @@ public class FenetrePrincipale extends JFrame {
         toolbar.addSeparator();
         
         toolbar.add(btnAddLecteur);
-        toolbar.add(btnSuppr);         // Ajout suppression
-        toolbar.addSeparator();
-        
-        toolbar.add(btnModifLecteur);  // Ajout modification
+        toolbar.add(btnModifLecteur);
+        toolbar.add(btnSuppr);        
         toolbar.addSeparator();
         
         JButton btnNouveauPret = new JButton("Nouveau prêt");
