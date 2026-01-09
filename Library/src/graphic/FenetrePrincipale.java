@@ -136,9 +136,9 @@ public class FenetrePrincipale extends JFrame {
         rafraichirTout();
     }
     
-    // --- LOGIQUE METIER ---
+
     
-    // NOUVEAU : Supprimer un document ou un lecteur
+    // Supprimer un document ou un lecteur
     private void actionSupprimer() {
         JTabbedPane onglets = (JTabbedPane) ((BorderLayout)getContentPane().getLayout()).getLayoutComponent(BorderLayout.CENTER);
         int indexOnglet = onglets.getSelectedIndex();
@@ -183,7 +183,7 @@ public class FenetrePrincipale extends JFrame {
         }
     }
     
-    // NOUVEAU : Modifier un lecteur
+    // Modifier un lecteur
     private void actionModifierLecteur() {
         JTabbedPane onglets = (JTabbedPane) ((BorderLayout)getContentPane().getLayout()).getLayoutComponent(BorderLayout.CENTER);
         if (onglets.getSelectedIndex() != 1) {
@@ -217,10 +217,9 @@ public class FenetrePrincipale extends JFrame {
                     
                     l.setMaxEmprunt(newMax);
                     
-                    // Gestion du polymorphisme pour setDureePret si ce n'est pas dans Lecteur
+                    // Condition Etudiant / Enseignant
                     if (l instanceof Etudiant) ((Etudiant)l).setDureePret(newDuree);
                     else if (l instanceof Enseignant) ((Enseignant)l).setDureePret(newDuree);
-                    // Ou simplement l.setDureePret(newDuree) si tu as ajouté la méthode abstraite dans Lecteur
                     
                     rafraichirTout();
                     JOptionPane.showMessageDialog(this, "Paramètres modifiés avec succès !");
@@ -251,7 +250,6 @@ public class FenetrePrincipale extends JFrame {
         // On récupère la référence (Colonne 1)
         String ref = (String) modelDocs.getValueAt(ligne, 1);
         
-        // Petite méthode utilitaire pour trouver le doc (si tu ne l'as pas déjà, ajoute-la ou adapte)
         Document d = null;
         for(Document doc : maBiblio.obtenirToutLesDocuments()) {
             if(doc.getReference().equals(ref)) { d = doc; break; }
@@ -443,7 +441,6 @@ public class FenetrePrincipale extends JFrame {
                 String info = (l instanceof Etudiant) ? ((Etudiant)l).getAdressePostale() : ((Enseignant)l).getTelephone();
                 int encours = maBiblio.getNbEmpruntsEnCours(l);
                 
-                // APRÈS (On ajoute l.getDureePret() au milieu) :
                 modelLecteurs.addRow(new Object[]{
                     type, 
                     l.getNom(), 
@@ -462,7 +459,7 @@ public class FenetrePrincipale extends JFrame {
                 
                 LocalDate dateRetour = p.getDatePret().plusDays(dureeBase + bonus);
                 
-                // Affichage intelligent : "Oui (1/2)" ou "Non"
+                //  "Oui (1/2)" ou "Non"
                 String infoProlong = (p.getNbProlongations() > 0) 
                 ? "Oui (" + p.getNbProlongations() + "/" + Bibliotheque.MAX_PROLONGATIONS_AUTORISEES + ")" 
                 : "Non";
@@ -475,8 +472,8 @@ public class FenetrePrincipale extends JFrame {
                     p.getLecteur().getEmail(),
                     p.getLecteur().getInstitut(),
                     p.getDatePret(),
-                    dateRetour,    // Nouvelle date calculée
-                    infoProlong    // La nouvelle colonne
+                    dateRetour,    
+                    infoProlong    
                 });
             }
         }
