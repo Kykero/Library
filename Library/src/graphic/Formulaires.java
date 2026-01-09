@@ -14,7 +14,7 @@ import modele.Periodique;
 
 public class Formulaires {
 
-    // --- 1. AJOUTER DOCUMENT (Choix Livre ou Périodique) ---
+    // Ajout Doc
     public static void ajouterDocument(Component parent, Bibliotheque biblio, Runnable updateCallback) {
         // Choix du type
         String[] options = {"Livre", "Périodique"};
