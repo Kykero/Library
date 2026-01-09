@@ -11,17 +11,11 @@ import java.io.*;
 import java.time.*;
 import java.util.*;
 
-import modele.Document;
-import modele.Enseignant;
-import modele.Etudiant;
-import modele.Lecteur;
-import modele.Livre;
-import modele.Periodique;
-import modele.Pret;
+import modele.*;
 
 public class GestionDonnees {
     
-    // Fichiers à gérer à la racine du projet !
+    // Fichiers à gérer sont mis à la racine du projet (avant src)
     private static final String FICHIER_DOCS = "Documents.txt";
     private static final String FICHIER_LECTEURS = "Lecteurs.txt";
     private static final String FICHIER_PRETS = "Prets.txt";
@@ -36,13 +30,12 @@ public class GestionDonnees {
     
     // Sauvegarde générale
     public void sauvegarder(Bibliotheque biblio) {
-        System.out.println("Début de la sauvegarde...");
-        
+
+        System.out.println("Sauvegarde en cours ..."); // debug
         sauvegarderDocuments(biblio);
         sauvegarderLecteurs(biblio);
         sauvegarderPrets(biblio);
-        
-        System.out.println("Sauvegarde terminée !");
+        System.out.println("Sauvegarde terminée !"); // debug
     }
     
     // Writer permet d'écrire dans les fichier textes
@@ -52,12 +45,14 @@ public class GestionDonnees {
             for (Document doc : biblio.obtenirToutLesDocuments()) {
                 String ligne = "";
                 
+                // Si c'est un livre
                 if (doc instanceof Livre) {
                     Livre l = (Livre) doc;
                     // Format : TYPE;REF;TITRE;PRIX;NB;AUTEUR;TAUX
                     ligne = "LIVRE;" + l.getReference() + ";" + l.getTitre() + ";" + l.getPrix() + ";" 
                     + l.getNbExemplaire() + ";" + l.getNomAuteur() + ";" + l.getTauxRemboursement();
                 } 
+                // Si c'est un Périodique
                 else if (doc instanceof Periodique) {
                     Periodique p = (Periodique) doc;
                     // Format : TYPE;REF;TITRE;PRIX;NB;NUMERO;ANNEE
@@ -78,12 +73,14 @@ public class GestionDonnees {
             for (Lecteur lect : biblio.obtenirToutLesLecteurs()) {
                 String ligne = "";
                 
+                // Si c'est un Etudiant
                 if (lect instanceof Etudiant) {
                     Etudiant e = (Etudiant) lect;
                     // Format : TYPE;NOM;EMAIL;INSTITUT;MAX;ADRESSE;DUREE
                     ligne = "ETUDIANT;" + e.getNom() + ";" + e.getEmail() + ";" + e.getInstitut() + ";" 
                     + e.getMaxEmprunt() + ";" + e.getAdressePostale() + ";" + e.getDureePret();
                 } 
+                // Si c'est un Enseignant
                 else if (lect instanceof Enseignant) {
                     Enseignant ens = (Enseignant) lect;
                     // Format : TYPE;NOM;EMAIL;INSTITUT;MAX;TEL;DUREE
@@ -106,7 +103,7 @@ public class GestionDonnees {
             PrintWriter writer = new PrintWriter(new FileWriter(FICHIER_PRETS));
             
             for (Pret p : biblio.getToutLesPrets()) {
-                // Format : Email ; Ref ; Date ; NbFois ; TotalJours
+                // Format : Email ; Ref ; Date ; NbProlongation ; TotalJours
                 String ligne = p.getLecteur().getEmail() + ";" + 
                 p.getDocument().getReference() + ";" +
                 p.getDatePret() + ";" + 
@@ -130,11 +127,11 @@ public class GestionDonnees {
     // =================================================================
     
     public void charger(Bibliotheque biblio) {
-        System.out.println("Chargement des données...");
+        System.out.println("Chargement des données..."); // debug
         chargerDocuments(biblio);
         chargerLecteurs(biblio);
         chargerPrets(biblio);
-        System.out.println("Chargement terminé.");
+        System.out.println("Chargement terminé."); // debug
     }
     
     /* 
@@ -145,10 +142,10 @@ public class GestionDonnees {
     private void chargerDocuments(Bibliotheque biblio) {
         File fichier = new File(FICHIER_DOCS);
         
-        // DEBUG : Print le chemin
+        // DEBUG : Print le chemin pour vérifier le path
         System.out.println("Lecture du fichier : " + fichier.getAbsolutePath());
         
-        if (!fichier.exists()) return; 
+        if (!fichier.exists()) return;  // Si on trouve rien le programme se lance mais aucun document sera affiché.
         
         // Lecture du fichier Documents (la doc recommende un try exception sur oracle)
         try {
@@ -202,18 +199,21 @@ public class GestionDonnees {
                 
                 String[] infos = ligne.split(";");
                 
+                //attributs commun des lecteurs
                 String type = infos[0];
                 String nom = infos[1];
                 String email = infos[2];
                 String institut = infos[3];
                 int max = Integer.parseInt(infos[4]); 
                 
+                //attributs étudiant en plus
                 if (type.equals("ETUDIANT")) {
                     String adresse = infos[5];
                     int duree = Integer.parseInt(infos[6]); 
                     Etudiant e = new Etudiant(nom, email, institut, max, adresse, duree); //Il s'agit du second constructeur de la classe étudiant, m'évite de réecrire du boilerplate
                     biblio.AjouterLecteur(e); 
                 } 
+                //attributs enseignant en plus
                 else if (type.equals("ENSEIGNANT")) {
                     String tel = infos[5];
                     int duree = Integer.parseInt(infos[6]);
@@ -230,7 +230,8 @@ public class GestionDonnees {
     
     /* 
     * La méthode est plus complexe car on doit relier également les lecteurs aux prêts
-    *  Pour faciliter la lecture on implémente d'autres méthodes plus bas
+    *  Pour faciliter la lecture (et mes yeux surtout...) des méthodes utilisé ici sont implémenté
+    * plus bas.
     */
     private void chargerPrets(Bibliotheque biblio) {
         File fichier = new File(FICHIER_PRETS);
@@ -248,50 +249,38 @@ public class GestionDonnees {
                 String email = infos[0];
                 String ref = infos[1];
                 String date = infos[2];
-                
-                // --- LOGIQUE DE MIGRATION (INTELLIGENTE) ---
+
+                // Nombre de rallonge + durée
                 int nbFois = 0;
                 int nbJours = 0;
                 
-                // CAS 1 : Nouveau Format (5 colonnes ou plus) -> On lit les chiffres
                 if (infos.length >= 5) {
                     try {
                         nbFois = Integer.parseInt(infos[3]);
                         nbJours = Integer.parseInt(infos[4]);
                     } catch (NumberFormatException e) {
-                        // Sécurité si jamais le fichier est corrompu
+                        // Au cas ou la lecture plante
                         nbFois = 0; nbJours = 0;
                     }
                 } 
-                // CAS 2 : Ancien Format (4 colonnes) -> On convertit "true" en chiffres
-                else if (infos.length == 4) {
-                    String ancienBooleen = infos[3]; // "true" ou "false"
-                    if (ancienBooleen.equalsIgnoreCase("true")) {
-                        // On considère que l'ancien "true" équivaut à 1 rallonge de 14 jours
-                        nbFois = 1;
-                        nbJours = 14;
-                    }
-                }
-                // -------------------------------------------
                 
                 Lecteur l = trouverLecteur(biblio, email);
                 Document d = trouverDocument(biblio, ref);
                 
                 if (l != null && d != null) {
+                    // Créer le prêt
                     Pret p = new Pret(d, l);
                     p.setDatePret(LocalDate.parse(date));
-                    
-                    // On injecte les valeurs calculées (qu'elles viennent du Cas 1 ou 2)
                     p.setNbProlongations(nbFois);
                     p.setJoursSupplementaires(nbJours);
-                    
+                    //ajoute le prêt a la bibliothèque
                     biblio.getToutLesPrets().add(p);
                 }
             }
             scanner.close();
         } catch (Exception e) {
             System.out.println("Erreur lecture prêts : " + e.getMessage());
-            e.printStackTrace(); // Utile pour voir l'erreur exacte dans la console
+            e.printStackTrace(); // Debug !
         }
     }
     

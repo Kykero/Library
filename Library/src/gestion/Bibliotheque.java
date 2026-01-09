@@ -21,8 +21,8 @@ public class Bibliotheque{
     private List<Lecteur> Lecteurs;
     private List<Pret> Prets;
     
-    //Prolongation dynamique
-    public static final int MAX_PROLONGATIONS_AUTORISEES = 2; // On dit qu'on peut rallonger que 2 fois max
+    //Prolongation par défaut
+    public static final int MAX_PROLONGATIONS_AUTORISEES = 2; 
     public static final int MAX_JOURS_PAR_RALLONGE = 15;
     
     public Bibliotheque() {
@@ -46,17 +46,17 @@ public class Bibliotheque{
     
     public String prolongationPret(Lecteur lecteur, Document document, int joursDemandes) {
         
-        // 1. Vérification de la saisie
+        // Sécurité de la demande
         if (joursDemandes <= 0) return "REFUS : Veuillez entrer un nombre positif.";
         if (joursDemandes > MAX_JOURS_PAR_RALLONGE) {
             return "REFUS : Limite dépassée (Max " + MAX_JOURS_PAR_RALLONGE + " jours).";
         }
         
-        for (Pret p : this.Prets) { // Attention à la casse (prets ou Prets selon ton code)
+        for (Pret p : this.Prets) { 
             if (p.getLecteur().getEmail().equals(lecteur.getEmail()) && 
-            p.getDocument().getReference().equals(document.getReference())) {
+            p.getDocument().getReference().equals(document.getReference())) { // On vérifie les emails
                 
-                // 2. Vérification du quota (BONUS)
+                // On vérifie également les quotas
                 if (p.getNbProlongations() >= MAX_PROLONGATIONS_AUTORISEES) {
                     return "REFUS : Quota atteint (" + MAX_PROLONGATIONS_AUTORISEES + " fois max).";
                 }
@@ -79,18 +79,12 @@ public class Bibliotheque{
     }
     
     public String SupprimerLecteur(Lecteur lect ){
-        if(lect.getDureePret() == 0){  // Vérifie que le lecteur possède aucun prêt sinon les oeuvres disparaît avec lui
+        if(lect.getDureePret() == 0){  // Vérifie que le lecteur possède aucun prêt sinon les oeuvres disparaît avec lui et c'est pas bon, ça s'appelle du vol, je crois.
             Lecteurs.remove(lect);
         }else {
             return "Le lecteur possède un livre";
         }
         return "Lecteur annhéanti";
-    }
-    
-    //TODO : Check la fonction car elle me parait bizarre
-    public void modificationLecteur(Lecteur lect, int nouveauMaxEmprunt, int nouvelleDuree) {
-        lect.setMaxEmprunt(nouveauMaxEmprunt);
-        System.out.println("Paramètres modifiés pour : " + lect.getNom());
     }
     
     
@@ -100,13 +94,13 @@ public class Bibliotheque{
     
     public boolean requetePret(Lecteur lecteur, Document doc) {
         
-        //Vérification du  nombre de prêt du lecteur
+        // Sécurité / Quota
         long nbActuel = getNbEmpruntsEnCours(lecteur);
         if (nbActuel >= lecteur.getMaxEmprunt()) {
             System.out.println("Refus : Le lecteur a atteint son quota de " + lecteur.getMaxEmprunt() + " documents.");
             return false;
         }
-        // Ajoute le prêt dans la list (sauvegarde)
+        // Sauvegarde la requête de prêt
         Pret nouveauPret = new Pret(doc, lecteur);
         Prets.add(nouveauPret);
         
@@ -125,7 +119,7 @@ public class Bibliotheque{
                 break; // Permet d'arrêter la boucle (sans devoir flag boolean)
             }
         }
-        
+        // Supprime le prêt si existant
         if (pretATrouver != null) {
             this.Prets.remove(pretATrouver);
             doc.defNbExemplaire(doc.getNbExemplaire() + 1);
@@ -154,7 +148,7 @@ public class Bibliotheque{
                 break;
             }
         }
-        if (pretASupprimer != null) { // Pour ne pas retirer un null ça n'a pas de sens
+        if (pretASupprimer != null) { // Vérifie la nature du prêt à supprimer (soit null soit 1)
         this.Prets.remove(pretASupprimer);
     }
 }
