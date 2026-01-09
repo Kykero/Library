@@ -145,7 +145,7 @@ public class FenetrePrincipale extends JFrame {
         
         if (indexOnglet == 0) { // Onglet DOCUMENTS
             int ligne = ((JTable)((JScrollPane)onglets.getComponentAt(0)).getViewport().getView()).getSelectedRow();
-            if (ligne == -1) { JOptionPane.showMessageDialog(this, "Sélectionnez un document."); return; }
+            if (ligne == -1) { JOptionPane.showMessageDialog(this, "Sélectionnez une ligne."); return; }
             
             String ref = (String) modelDocs.getValueAt(ligne, 1);
             int confirm = JOptionPane.showConfirmDialog(this, "Supprimer le document " + ref + " ?", "Confirmation", JOptionPane.YES_NO_OPTION);
