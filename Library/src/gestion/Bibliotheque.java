@@ -80,75 +80,80 @@ public class Bibliotheque{
     
     public String SupprimerLecteur(Lecteur lect ){
         if(lect.getDureePret() == 0){  // Vérifie que le lecteur possède aucun prêt sinon les oeuvres disparaît avec lui et c'est pas bon, ça s'appelle du vol, je crois.
-            Lecteurs.remove(lect);
-        }else {
-            return "Le lecteur possède un livre";
-        }
-        return "Lecteur annhéanti";
+        Lecteurs.remove(lect);
+    }else {
+        return "Le lecteur possède un livre";
     }
-    
-    
-    /* ---------------------------*/
-    /* --- Gestion des Prêts --- */
-    /* ---------------------------*/
-    
-    public boolean requetePret(Lecteur lecteur, Document doc) {
-        
-        // Sécurité / Quota
-        long nbActuel = getNbEmpruntsEnCours(lecteur);
-        if (nbActuel >= lecteur.getMaxEmprunt()) {
-            System.out.println("Refus : Le lecteur a atteint son quota de " + lecteur.getMaxEmprunt() + " documents.");
-            return false;
-        }
-        // Sauvegarde la requête de prêt
-        Pret nouveauPret = new Pret(doc, lecteur);
-        Prets.add(nouveauPret);
-        
-        // Mets à jour le stock
-        doc.defNbExemplaire(doc.getNbExemplaire() - 1);
-        System.out.println("Prêt validé pour : " + doc.getTitre());
-        return true;
+    return "Lecteur annhéanti";
+}
+
+
+/* ---------------------------*/
+/* --- Gestion des Prêts --- */
+/* ---------------------------*/
+
+public boolean requetePret(Lecteur lecteur, Document doc) {
+
+    // Sécurité / Stock
+    if (doc.getNbExemplaire() <= 0) {
+        System.out.println("Refus : Document " + doc.getTitre() + " indisponible (Stock 0).");
+        return false;
     }
+    // Sécurité / Quota
+    long nbActuel = getNbEmpruntsEnCours(lecteur);
+    if (nbActuel >= lecteur.getMaxEmprunt()) {
+        System.out.println("Refus : Le lecteur a atteint son quota de " + lecteur.getMaxEmprunt() + " documents.");
+        return false;
+    }
+    // Sauvegarde la requête de prêt
+    Pret nouveauPret = new Pret(doc, lecteur);
+    Prets.add(nouveauPret);
     
-    public void retourPret(Lecteur lect, Document doc) {
-        
-        Pret pretATrouver = null;
-        for (Pret p : this.Prets) {
-            if (p.getLecteur().equals(lect) && p.getDocument().equals(doc)) {
-                pretATrouver = p;
-                break; // Permet d'arrêter la boucle (sans devoir flag boolean)
-            }
-        }
-        // Supprime le prêt si existant
-        if (pretATrouver != null) {
-            this.Prets.remove(pretATrouver);
-            doc.defNbExemplaire(doc.getNbExemplaire() + 1);
-            System.out.println("RETOUR : Le document '" + doc.getTitre() + "' a été rendu.");
-        } else {
-            System.out.println("ERREUR : Aucun prêt trouvé pour ce lecteur et ce document.");
+    // Mets à jour le stock
+    doc.defNbExemplaire(doc.getNbExemplaire() - 1);
+    System.out.println("Prêt validé pour : " + doc.getTitre());
+    return true;
+}
+
+public void retourPret(Lecteur lect, Document doc) {
+    
+    Pret pretATrouver = null;
+    for (Pret p : this.Prets) {
+        if (p.getLecteur().equals(lect) && p.getDocument().equals(doc)) {
+            pretATrouver = p;
+            break; // Permet d'arrêter la boucle (sans devoir flag boolean)
         }
     }
+    // Supprime le prêt si existant
+    if (pretATrouver != null) {
+        this.Prets.remove(pretATrouver);
+        doc.defNbExemplaire(doc.getNbExemplaire() + 1);
+        System.out.println("RETOUR : Le document '" + doc.getTitre() + "' a été rendu.");
+    } else {
+        System.out.println("ERREUR : Aucun prêt trouvé pour ce lecteur et ce document.");
+    }
+}
+
+public void declarationPerte(Lecteur lecteur, Document document) {
+    double aPayer = 0;
+    if (document instanceof Livre) { // Permet de déterminer la nature du document (très pratique la doc java quand même)
+        Livre livrePerdu = (Livre) document; // Obligé de caster sinon on a aucun accès aux méthodes associés aux livres
+        double majoration = livrePerdu.getPrix() * livrePerdu.getTauxRemboursement();
+        aPayer = livrePerdu.getPrix() + majoration;
+    } else {
+        aPayer = document.getPrix(); 
+    }
+    System.out.println("Perte d'un document : " + lecteur.getNom() + " doit payer " + aPayer + " euros.");
     
-    public void declarationPerte(Lecteur lecteur, Document document) {
-        double aPayer = 0;
-        if (document instanceof Livre) { // Permet de déterminer la nature du document (très pratique la doc java quand même)
-            Livre livrePerdu = (Livre) document; // Obligé de caster sinon on a aucun accès aux méthodes associés aux livres
-            double majoration = livrePerdu.getPrix() * livrePerdu.getTauxRemboursement();
-            aPayer = livrePerdu.getPrix() + majoration;
-        } else {
-            aPayer = document.getPrix(); 
+    // Mets à jour le stock
+    Pret pretASupprimer = null;
+    for (Pret p : this.Prets) {
+        if (p.getLecteur().equals(lecteur) && p.getDocument().equals(document)) {
+            pretASupprimer = p;
+            break;
         }
-        System.out.println("Perte d'un document : " + lecteur.getNom() + " doit payer " + aPayer + " euros.");
-        
-        // Mets à jour le stock
-        Pret pretASupprimer = null;
-        for (Pret p : this.Prets) {
-            if (p.getLecteur().equals(lecteur) && p.getDocument().equals(document)) {
-                pretASupprimer = p;
-                break;
-            }
-        }
-        if (pretASupprimer != null) { // Vérifie la nature du prêt à supprimer (soit null soit 1)
+    }
+    if (pretASupprimer != null) { // Vérifie la nature du prêt à supprimer (soit null soit 1)
         this.Prets.remove(pretASupprimer);
     }
 }
