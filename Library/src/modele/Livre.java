@@ -4,15 +4,14 @@
  */
 
 package modele;
+
 public class Livre extends Document {
     
-    /*
-    * Attributs
-    */
+    // Attributs
    private String Nom_Auteur;
    private float Taux_Remboursement;
 
-   /* Constructeur par défaut */
+   // Constructeur par défaut
    public Livre(String ref, String titre, int prix, int nb, String auteur, float taux) {
         super(ref, titre, prix, nb);
         this.Nom_Auteur = auteur;
@@ -23,7 +22,6 @@ public class Livre extends Document {
     public String toString(){
         return this.titre + " (" + this.Nom_Auteur + ")";
     }
-
 
     /* Getteurs et setters */
     public float getTauxRemboursement() { return Taux_Remboursement; }

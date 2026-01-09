@@ -13,7 +13,7 @@ public class Etudiant extends Lecteur {
     public static final int MAX_EMPRUNT_DEFAUT = 1; 
     public static final int DUREE_PRET_DEFAUT = 14;
 
-
+    // Constructeur par défaut
     public Etudiant(String nom, String email, String inst, String adr) {
         super(nom, email, inst, MAX_EMPRUNT_DEFAUT);
         this.AdressePostale = adr;

@@ -27,7 +27,6 @@ public class Periodique extends Document {
     public int getAnneeParution() {return Annee_Parution;}
 
     public void setNumero(int numero) {this.Numero = numero;}
-
     public void setAnneeParution(int annee) {this.Annee_Parution = annee;}
 
 }

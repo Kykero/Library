@@ -1,7 +1,7 @@
 /**
- * Classe permettant de créer un lecteur
- * Elle est la classe mère de Enseignant et Etudiant
- */
+* Classe permettant de créer un lecteur
+* Elle est la classe mère de Enseignant et Etudiant
+*/
 
 package modele;
 
@@ -11,6 +11,7 @@ public abstract class Lecteur {
     protected String Institut;
     protected int MaxEmprunt;
     
+    // Constructeur par défaut
     public Lecteur(String nom, String email, String institut, int maxEmprunt) {
         this.Nom = nom;
         this.Email = email;
@@ -32,7 +33,8 @@ public abstract class Lecteur {
     public void setMaxEmprunt(int Max) { this.MaxEmprunt = Max; }
     
     //Méthode Abstract (j'ai enfin compris !)
-    public abstract int getDureePret(); 
     // On possède 2 types de Durée de Prêts, donc on abstract dans la classe "mère" pour pouvoir faire référence aux méthodes getdureePret des classes child
-  
+    public abstract int getDureePret(); 
+    
+    
 }

@@ -27,6 +27,7 @@ public class Enseignant extends Lecteur {
         this.DureePretEns = duree;   
     }
     
+    // Getters et Setters
     public String toString() { return super.toString() + " [Enseignant]"; }
     public int getDureePret() { return DureePretEns; }
     public void setDureePret(int jours) { this.DureePretEns = jours; }
